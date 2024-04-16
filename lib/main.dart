@@ -6,6 +6,16 @@ void main() {
   runApp(const MyApp());
 }
 
+class TournamentInfo {
+  final String beginAt;
+  final String name;
+
+  TournamentInfo({
+    required this.beginAt,
+    required this.name,
+  });
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
 
@@ -33,7 +43,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  List<String> _teamNames = [];
+  List<TournamentInfo> _tournamentInfo = [];
 
   void _incrementCounter() {
     setState(() {
@@ -43,21 +53,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> fetchTeamNames() async {
     const apiKey = 'I33Wd41X3fq__E_nqgl3cgqCT-MceaWMtGJPtyj3ikup7lIIPqo';
-    const apiUrl = 'https://api.pandascore.co/valorant/teams/';
+    const apiUrl = 'https://api.pandascore.co/lol/tournaments/';
 
     final response = await http.get(Uri.parse('$apiUrl?token=$apiKey'));
 
     if (response.statusCode == 200) {
-      final List<dynamic> teams = json.decode(response.body);
-      List<String> names = [];
+      final List<dynamic> tournaments = json.decode(response.body);
+      List<TournamentInfo> info = [];
 
-      for (var team in teams) {
-        final String name = team['name'];
-        names.add(name);
+      for (var tournament in tournaments) {
+        final String beginAt = tournament['begin_at'] ?? '';
+        final String name = tournament['name'] ?? '';
+        final TournamentInfo tournamentInfo = TournamentInfo(
+          beginAt: beginAt,
+          name: name,
+        );
+        info.add(tournamentInfo);
       }
 
       setState(() {
-        _teamNames = names;
+        _tournamentInfo = info;
       });
     } else {
       print('Fehler beim Abrufen der Daten: ${response.statusCode}');
@@ -85,14 +100,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton.icon(
               onPressed: fetchTeamNames,
               icon: Icon(Icons.download),
-              label: Text('Valorant'),
+              label: Text('Fetch Data'),
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: _teamNames.length,
+                itemCount: _tournamentInfo.length,
                 itemBuilder: (context, index) {
+                  final info = _tournamentInfo[index];
                   return ListTile(
-                    title: Text(_teamNames[index]),
+                    title: Text(info.name),
+                    subtitle: Text(info.beginAt),
                   );
                 },
               ),
