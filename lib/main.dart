@@ -6,16 +6,11 @@ void main() {
   runApp(const MyApp());
 }
 
-class TournamentInfo {
-  final String original_scheuled_at;
+class TeamInfo {
   final String name;
-  final String team;
+  final String date;
 
-  TournamentInfo({
-    required this.original_scheuled_at,
-    required this.name,
-    required this.team,
-  });
+  TeamInfo(this.name, this.date);
 }
 
 class MyApp extends StatelessWidget {
@@ -45,8 +40,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  List<TournamentInfo> _tournamentInfo = [];
-  List<TournamentInfo> _teamInfo = [];
+  List<TeamInfo> _teamInfos = [];
 
   void _incrementCounter() {
     setState(() {
@@ -54,124 +48,101 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<void> fetchData({required bool fetchTournaments}) async {
+  Future<void> fetchTeamInfos() async {
     const apiKey = 'I33Wd41X3fq__E_nqgl3cgqCT-MceaWMtGJPtyj3ikup7lIIPqo';
-    final apiUrl = fetchTournaments
-        ? 'https://api.pandascore.co/lol/tournaments/'
-        : 'https://api.pandascore.co/lol/teams/';
+    const apiUrl = 'https://api.pandascore.co/valorant/matches/upcoming';
 
     final response = await http.get(Uri.parse('$apiUrl?token=$apiKey'));
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      List<TournamentInfo> info = [];
+      final List<dynamic> matches = json.decode(response.body);
+      List<TeamInfo> teamInfos = [];
 
-      for (var item in data) {
-        final String original_scheuled_at = fetchTournaments ? item['original_scheuled_at'] ?? '' : '';
-        final String name = item['name'] ?? '';
-        final String team = item['team'] ?? '';
-        final TournamentInfo tournamentInfo = TournamentInfo(
-          original_scheuled_at: original_scheuled_at,
-          name: name,
-          team: team,
-        );
-        info.add(tournamentInfo);
+      for (var match in matches) {
+        final String name = match['name'];
+        final String date = match['begin_at'];
+        final teamInfo = TeamInfo(name, date);
+        teamInfos.add(teamInfo);
       }
 
       setState(() {
-        if (fetchTournaments) {
-          _tournamentInfo = info;
-        } else {
-          _teamInfo = info;
-        }
+        _teamInfos = teamInfos;
       });
     } else {
       print('Fehler beim Abrufen der Daten: ${response.statusCode}');
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            ElevatedButton.icon(
-              onPressed: () {
-                fetchData(fetchTournaments: true);
-                fetchData(fetchTournaments: false);
-              },
-              icon: Icon(Icons.download),
-              label: Text('Fetch Data'),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _tournamentInfo.length,
-                itemBuilder: (context, index) {
-                  final tournament = _tournamentInfo[index];
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      title: Text(widget.title),
+    ),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text(
+            'You have pushed the button this many times:',
+          ),
+          Text(
+            '$_counter',
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          ElevatedButton.icon(
+            onPressed: fetchTeamInfos,
+            icon: Icon(Icons.download),
+            label: Text('Valorant'),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _teamInfos.length,
+              itemBuilder: (context, index) {
+                final teamInfo = _teamInfos[index];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
                     children: [
-                      ListTile(
-                        title: Text(
-                          tournament.name,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(tournament.original_scheuled_at),
-                      ),
-                      SizedBox(
-                        height: 100.0,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _teamInfo.length,
-                          itemBuilder: (context, index) {
-                            final team = _teamInfo[index];
-                            return Card(
-                              child: Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      team.name,
-                                      style: TextStyle(fontSize: 12.0),
-                                    ),
-                                    Text(
-                                      team.team,
-                                      style: TextStyle(fontSize: 10.0),
-                                    ),
-                                  ],
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Name: ${teamInfo.name}',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                              ),
-                            );
-                          },
+                                Text('Date: ${teamInfo.date}'),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ],
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: _incrementCounter,
+      tooltip: 'Increment',
+      child: const Icon(Icons.add),
+    ),
+  );
 }
+}
+
+ 
+ 
