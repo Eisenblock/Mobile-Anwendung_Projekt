@@ -11,9 +11,10 @@ class TeamInfo {
   final String date;
   final String league;
   final String series;
+  final String leagueurl;
   
 
-  TeamInfo(this.name, this.date,this.league, this.series);
+  TeamInfo(this.name, this.date,this.league, this.series,this.leagueurl);
 }
 
 class MyApp extends StatelessWidget {
@@ -66,10 +67,11 @@ class _MyHomePageState extends State<MyHomePage>
         final String name = match['name'];
         final String date = match['begin_at'];
         final String league = match['league']['name'];
+        final String leagueurl = match['league']['image_url'];
         final String series = match['serie']['full_name'];
         
 
-        final teamInfo = TeamInfo(name, date,league,series);
+        final teamInfo = TeamInfo(name, date,league,series,leagueurl);
         teamInfos.add(teamInfo);
       }
 
@@ -98,10 +100,11 @@ class _MyHomePageState extends State<MyHomePage>
         final String name = match['name'];
         final String date = match['begin_at'];
         final String league = match['league']['name'];
+        final String leagueurl = match['league']['image_url'];
         final String series = match['serie']['name'];
         
 
-        final teamInfo = TeamInfo(name, date,league,series);
+        final teamInfo = TeamInfo(name, date,league,series,leagueurl);
         teamInfos.add(teamInfo);
       }
 
@@ -171,7 +174,13 @@ Widget build(BuildContext context)
                                 ),
                                 Text('Date: ${teamInfo.date}'),
                                 Text('League: ${teamInfo.league}'), 
-                                Text('Split: ${teamInfo.series}'),                             
+                                Text('Split: ${teamInfo.series}'),
+                                if (teamInfo.leagueurl != null) // Überprüfen, ob eine URL vorhanden ist
+                        Image.network(
+                          teamInfo.leagueurl, // Verwenden Sie die URL aus TeamInfo.series
+                          width: 100, // Optional: Breite des Bildes festlegen
+                          height: 100, // Optional: Höhe des Bildes festlegen
+                        ),                             
                               ],
                             ),
                           ),
