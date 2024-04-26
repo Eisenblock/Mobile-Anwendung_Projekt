@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_ma/CalenderPage.dart';
 import 'package:http/http.dart' as http;
 
-TeamInfo teamInfo = TeamInfo('name','', '','', '',  'league', 'series', 'leagueurl',DateTime.utc(1900));
+TeamInfo teamInfo = TeamInfo('name','', '','', '', '', '' ,'league', 'series', 'leagueurl',DateTime.utc(1900));
 Loader loader = Loader();
 
 class MyHomePage extends StatefulWidget {
@@ -76,6 +76,7 @@ Future<void> fetchTeamInfosLoL() async {
               return Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Container(
@@ -88,26 +89,46 @@ Future<void> fetchTeamInfosLoL() async {
                         child: Padding(
                           padding: const EdgeInsets.all(4.0),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                'Name: ${teamInfo.name}',
+                                '${teamInfo.name}',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),                             
                               Text(' ${teamInfo.opponent1}' +' vs' + '  ${teamInfo.opponent2}'),
                               Text('Date: ${teamInfo.date}'),
                               Text('Time: ${teamInfo.time}'),
                               Text('League: ${teamInfo.league}'),
-                              Text('Split: ${teamInfo.series}'),
                               
-                              Visibility(
-                                 visible: teamInfo.leagueurl != null,
-                                 child: Image.network(
-                                 teamInfo.leagueurl, // Verwenden Sie die URL aus TeamInfo.series
-                                 width: 100, // Optional: Breite des Bildes festlegen
-                                 height: 100, // Optional: Höhe des Bildes festlegen
+                              
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Visibility(
+                                      visible: teamInfo.opponent1url != "keine Daten",
+                                      child: Image.network(
+                                        teamInfo.opponent1url,
+                                        width: 100, // Breite des Bildes
+                                        height: 100, // Höhe des Bildes
+                                        ),
+                                      ), 
+                                      Visibility(
+                                        visible: teamInfo.opponent1url != "keine Daten",
+                                        child: Text(
+                                          'vs',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ), // Optional: Abstand zwischen den Bildern                                    
+                                      SizedBox(width: 10), // Optional: Abstand zwischen den Bildern
+                                      Visibility(
+                                         visible: teamInfo.opponent2url != "keine Daten",
+                                         child: Image.network(
+                                          teamInfo.opponent2url,
+                                          width: 100, // Breite des Bildes
+                                          height: 100, // Höhe des Bildes
+                                    ),
                                 ),
-                              ),
+                              ],)
                             ],
                           ),
                         ),

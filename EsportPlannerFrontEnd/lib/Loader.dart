@@ -16,8 +16,9 @@ class Loader{
     
     // Überprüfen, ob der Schlüssel "lol" im combinedData-Objekt vorhanden ist
      
-      final dynamic dataValo = combinedData['valorant'];
+      
       final dynamic dataLoL = combinedData['lol'];
+      final dynamic dataValo = combinedData['valorant'];
       
 
         for (var match in dataLoL) {
@@ -33,20 +34,25 @@ class Loader{
           final List<dynamic> opponents = match['opponents'];
           String opponent1 = '';
           String opponent2 = '';
+          String opponent1url = '';
+          String opponent2url = '';
 
-          if(opponents.isNotEmpty && opponents != null){
+          if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
           opponent1 = match['opponents'][0]['opponent']['name'];
           opponent2 = match['opponents'][1]['opponent']['name'];
+          opponent1url = match['opponents'][0]['opponent']['image_url'];
+          opponent2url = match['opponents'][1]['opponent']['image_url'];
           }else{
           opponent1 = "keine Daten";
           opponent2 = "keine Daten";
+          opponent1url = "keine Daten";
+          opponent2url = "keine Daten";
           }
           print("lOL" + opponent1 + opponent2);
 
-          final teamInfo = TeamInfo(name,opponent1,opponent2, date,time, league, series, leagueurl,timeCalender);
+          final teamInfo = TeamInfo(name,opponent1,opponent1url,opponent2,opponent2url, date,time, league, series, leagueurl,timeCalender);
           teamInfos.add(teamInfo);
         }
-
 
          for (var match in dataValo) {
           final String name = match['name'];
@@ -58,23 +64,29 @@ class Loader{
           final String league = match['league'];
           final String leagueurl = match['leagueurl']; // Korrektur des Feldnamens
           final String series = match['serie'];
-          final List<dynamic>  opponents = match['opponents'];
-          String opponent1 = '' ;
-          String opponent2 = '' ;
+          final List<dynamic> opponents = match['opponents'];
+          String opponent1 = '';
+          String opponent2 = '';
+          String opponent1url = '';
+          String opponent2url = '';
 
-          if(opponents.isNotEmpty && opponents.length > 1){
+          
+          if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
           opponent1 = match['opponents'][0]['opponent']['name'];
           opponent2 = match['opponents'][1]['opponent']['name'];
+          opponent1url = match['opponents'][0]['opponent']['image_url'];
+          opponent2url = match['opponents'][1]['opponent']['image_url'];
           }else{
           opponent1 = "keine Daten";
           opponent2 = "keine Daten";
+          opponent1url = "keine Daten";
+          opponent2url = "keine Daten";
           }
-          print("valo" + opponent1+ "vs" + opponent2);
+          print("valo" + opponent1 + opponent2);
 
-          final teamInfo = TeamInfo(name,opponent1,opponent2,date,time, league, series, leagueurl,timeCalender);
+          final teamInfo = TeamInfo(name,opponent1,opponent1url,opponent2,opponent2url, date,time, league, series, leagueurl,timeCalender);
           teamInfos.add(teamInfo);
         }
-
         
   }
   return teamInfos;
