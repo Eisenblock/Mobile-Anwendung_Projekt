@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
-import 'MyHomePage.dart'; // Annahme: Die MyHomePage befindet sich in der Datei MyHomePage.dart
-import 'MyStatistik.dart'; // Annahme: Die MyStatistik befindet sich in der Datei MyStatistik.dart
-import 'CalenderPage.dart'; // Annahme: Die CalenderPage befindet sich in der Datei CalenderPage.dart
+import 'package:provider/provider.dart';
+import 'MyHomePage.dart'; // Die MyHomePage befindet sich in der Datei MyHomePage.dart
+import 'MyStatistik.dart'; // Die MyStatistik befindet sich in der Datei MyStatistik.dart
+import 'CalenderPage.dart'; // Die CalenderPage befindet sich in der Datei CalenderPage.dart
+import 'LoginScreen.dart';// Die LoginScreen befindet sich in der Datei LoginScreen.dart
+import 'user_model.dart'; // Die UserModel befindet sich in der Datei user_model.dart
+import 'SettingPage.dart'; // Die SettingPage befindet sich in der Datei SettingPage.dart
+import 'anmeldung.dart'; // Die RegistrationForm befindet sich in der Datei anmeldung.dart
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserModel(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -16,36 +26,16 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/', // Startseite der App
+      initialRoute: '/login',
       routes: {
-        '/statistik': (context) => MyStatistik(title: 'Statistik Seite'), // Statistikseite
-        '/calender': (context) => CalenderPage(title: 'Statistik Seite'), // Statistikseite
+        '/statistik': (context) => MyStatistik(title: 'Statistik Seite'),
+        '/calender': (context) => CalendarPage(title: 'Calender Seite'),
+        '/login': (context) => LoginScreen(),
+        '/MyHomePage': (context) => MyHomePage(title: 'Esport Planner'),
+        '/settings': (context) => SettingsPage(),
+        '/anmeldung': (context) => RegistrationForm(),
+        '/login': (context) => LoginScreen(),
       },
-      home: MyHomePage(title: 'Flutter Demo Home Page'), // Startseite der App mit zusätzlichen Navigationsbuttons
-    );
-  }
-}
-
-class HomeWithNavigationButtons extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Flutter Demo Home Page'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [ 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/statistik');
-              },
-              child: Text('Zur Statistikseite navigieren'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
