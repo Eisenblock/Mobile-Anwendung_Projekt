@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'Loader.dart';
 import 'TeamInfo.dart';
 import 'user_model.dart';
 
-
 class MyStatistik extends StatefulWidget {
   final String title;
+  final String userId; // Benutzer-ID hinzugefügt
 
-  const MyStatistik({Key? key, required this.title}) : super(key: key);
+  const MyStatistik({Key? key, required this.title, required this.userId}) : super(key: key);
 
   @override
   _MyStatistikState createState() => _MyStatistikState();
@@ -19,13 +18,8 @@ class _MyStatistikState extends State<MyStatistik> {
   final Loader _loader = Loader();
 
   Future<void> fetchTeamInfosLoL() async {
-    final String userId = Provider.of<UserModel>(context, listen: false).id;
-
-    print('User ID: $userId');
-
     try {
-      List<TeamInfo> teamInfos = await _loader.fetchTeamInfosLoL(userId);
-      print('Team Infos from API: $teamInfos'); // Print the teamInfos received from the API
+      List<TeamInfo> teamInfos = await _loader.fetchTeamInfosLoL(widget.userId); // Benutzer-ID übergeben
       setState(() {
         _teamInfos = teamInfos;
       });
