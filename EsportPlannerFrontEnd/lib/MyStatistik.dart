@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ma/past_matches.dart';
+import 'package:provider/provider.dart%20';
 import 'Loader.dart';
-import 'TeamInfo.dart';
 import 'user_model.dart';
 
 class MyStatistik extends StatefulWidget {
   final String title;
-  final String userId; // Benutzer-ID hinzugefügt
 
-  const MyStatistik({Key? key, required this.title, required this.userId}) : super(key: key);
+  const MyStatistik({Key? key, required this.title}) : super(key: key);
 
   @override
   _MyStatistikState createState() => _MyStatistikState();
 }
 
 class _MyStatistikState extends State<MyStatistik> {
-  List<TeamInfo> _teamInfos = [];
+  List<PastMatches> _pastmatches = [];
   final Loader _loader = Loader();
 
-  Future<void> fetchTeamInfosLoL() async {
+  Future<void> fetchPastMatches() async {
     try {
-      List<TeamInfo> teamInfos = await _loader.fetchTeamInfosLoL(widget.userId); // Benutzer-ID übergeben
-      setState(() {
-        _teamInfos = teamInfos;
-      });
-    } catch (e) {
+      List<PastMatches> pastmatch = await _loader.fetchPastMatches(); 
+        _pastmatches = pastmatch;
+        print('Fetched ${_pastmatches.length} past matches');
+      }
+    
+     catch (e) {
       print('Failed to fetch team infos: $e');
     }
+
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -56,43 +59,41 @@ class _MyStatistikState extends State<MyStatistik> {
           ),
           SizedBox(height: 20),
           ElevatedButton(
-            onPressed: fetchTeamInfosLoL,
+            onPressed:fetchPastMatches,
             child: Text('Load LoL Team Infos'),
           ),
           SizedBox(height: 20),
           Expanded(
-            child: buildTeamInfoList(),
+            child: buildpastmatches(),
           ),
         ],
       ),
     );
   }
 
-  Widget buildTeamInfoList() {
-    if (_teamInfos.isEmpty) {
+  Widget buildpastmatches() {
+    if (_pastmatches.isEmpty) {
       return Center(child: Text('No team infos available'));
     } else {
       return ListView.builder(
-        itemCount: _teamInfos.length,
+        itemCount: _pastmatches.length,
         itemBuilder: (context, index) {
-          final teamInfo = _teamInfos[index];
+          final pastMatches = _pastmatches[index];
           return Padding(
             padding: const EdgeInsets.all(4.0),
             child: Card(
               child: ListTile(
                 title: Text(
-                    '${teamInfo.opponent1} vs ${teamInfo.opponent2}'),
+                    '${pastMatches.name}'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (teamInfo.opponent1url != 'keine Daten')
-                      Image.network(teamInfo.opponent1url, height: 50),
-                    if (teamInfo.opponent2url != 'keine Daten')
-                      Image.network(teamInfo.opponent2url, height: 50),
-                    Text('Date: ${teamInfo.date}'),
-                    Text('Time: ${teamInfo.time}'),
-                    Text('League: ${teamInfo.league}'),
-                    Text('Series: ${teamInfo.series}'),
+                    //if (teamInfo.opponent1url != 'keine Daten')
+                      //Image.network(teamInfo.opponent1url, height: 50),
+                    //if (teamInfo.opponent2url != 'keine Daten')
+                      //Image.network(teamInfo.opponent2url, height: 50),
+                    Text('Date: ${pastMatches.scheduledAt}'),
+                    Text('game: ${pastMatches.videogameName}'),
                   ],
                 ),
               ),
