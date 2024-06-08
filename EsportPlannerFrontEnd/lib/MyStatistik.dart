@@ -18,9 +18,15 @@ class _MyStatistikState extends State<MyStatistik> {
   final Loader _loader = Loader();
 
   Future<void> fetchPastMatches() async {
+    
+    final String userId = Provider.of<UserModel>(context, listen: false).id;
+    
     try {
-      List<PastMatches> pastmatch = await _loader.fetchPastMatches(); 
-        _pastmatches = pastmatch;
+      List<PastMatches> pastmatch = await _loader.fetchPastMatches(userId); 
+        setState(() {
+          _pastmatches = pastmatch;
+        });
+
         print('Fetched ${_pastmatches.length} past matches');
       }
     
@@ -92,8 +98,8 @@ class _MyStatistikState extends State<MyStatistik> {
                       //Image.network(teamInfo.opponent1url, height: 50),
                     //if (teamInfo.opponent2url != 'keine Daten')
                       //Image.network(teamInfo.opponent2url, height: 50),
-                    Text('Date: ${pastMatches.scheduledAt}'),
-                    Text('game: ${pastMatches.videogameName}'),
+                    Text('Date: ${pastMatches.name}'),
+                    Text('game: ${pastMatches.beginAt}'),
                   ],
                 ),
               ),
