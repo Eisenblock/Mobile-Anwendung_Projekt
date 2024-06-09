@@ -7,9 +7,16 @@ import 'LoL_Leagues.dart';
 import 'LoL_Teams.dart';
 
 class Loader {
+
+
+  String ipAdress ='192.168.0.34';
+
+
+
+
   Future<List<Users>> fetchUsers() async {
     List<Users> userList = [];
-    final response = await http.get(Uri.parse('http://192.168.2.125:3000/user'));
+    final response = await http.get(Uri.parse('http://$ipAdress:3000/user'));
     print("----------------------User: , -----------------------Password: ");
 
     if (response.statusCode == 200) {
@@ -32,9 +39,13 @@ class Loader {
     return userList;
   }
 
+
+
+
+
   Future<List<TeamInfo>> fetchTeamInfosLoL(String id) async {
     List<TeamInfo> teamInfos = [];
-    final response = await http.get(Uri.parse('http://192.168.2.125:3000/user/' + id + '/upcoming-matches'));
+    final response = await http.get(Uri.parse('http://$ipAdress:3000/user/$id/upcoming-matches'));
 
     if (response.statusCode == 200) {
       final dynamic combinedData = json.decode(response.body);
@@ -117,7 +128,7 @@ class Loader {
 
   Future<List<LoL_Leagues>> fetchAllLeaguesLoL() async {
     List<LoL_Leagues> lolLeagues = [];
-    final response = await http.get(Uri.parse('http://192.168.2.125:3000/lol/leagues'));
+    final response = await http.get(Uri.parse('http://$ipAdress:3000/lol/leagues'));
 
     if (response.statusCode == 200) {
       final dynamic combinedData = json.decode(response.body);
@@ -136,7 +147,7 @@ class Loader {
 
   Future<List<LoL_Team>> fetchAllTeamsLoL() async {
     List<LoL_Team> teams = [];
-    final response = await http.get(Uri.parse('http://192.168.2.125:3000/lol/teams'));
+    final response = await http.get(Uri.parse('http://$ipAdress:3000/lol/teams'));
 
     if (response.statusCode == 200) {
       final dynamic combinedData = json.decode(response.body);
@@ -154,13 +165,13 @@ class Loader {
 
   Future<List<PastMatches>> fetchPastMatches(String id) async {
     List<PastMatches> pastMatchesList = [];
-    final response = await http.get(Uri.parse('http://192.168.2.125:3000/past-matches'));
+    final response = await http.get(Uri.parse('http://$ipAdress:3000/past-matches'));
 
     if (response.statusCode == 200) {
       final dynamic combinedData = json.decode(response.body);
 
-      if (combinedData['match'] != null) {
-        final List<dynamic> matches = combinedData['match'];
+      if (combinedData['lol'] != null) {
+        final List<dynamic> matches = combinedData['lol'];
 
         for (var match in matches) {
           final String name = match['name'];

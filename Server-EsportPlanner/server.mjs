@@ -126,12 +126,12 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
       }));
 
       // Filtere die Spiele nach den ausgewählten Ligen des Benutzers
-      const filteredByLeagues = filteredData.filter(match => selectedLeagues.includes(match.league));
+      //const filteredByLeagues = filteredData.filter(match => selectedLeagues.includes(match.league));
 
       
 
       // Speichern der gefilterten und sortierten Daten für jedes Spiel separat
-      combinedData[game] = filteredByLeagues;
+      combinedData[game] = filteredData;
     }
 
     console.log(combinedData);
