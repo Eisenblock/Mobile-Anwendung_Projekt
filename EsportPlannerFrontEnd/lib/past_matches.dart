@@ -1,9 +1,9 @@
 class PastMatches{
 
   final String name;
-  final String leagueUrl;
-  final String league;
   final String beginAt;
+  final String league;
+  final String leagueUrl;
   final String opponent1;
   final String opponent2;
   final String serie;
@@ -13,7 +13,7 @@ class PastMatches{
 
 
 
-PastMatches(this.name,this.leagueUrl,this.league,this.beginAt,this.opponent1,this.opponent2,this.serie,this.opponent1url,this.opponent2url,this.opponents);
+PastMatches(this.name,this.beginAt,this.league,this.leagueUrl,this.opponent1,this.opponent2,this.serie,this.opponent1url,this.opponent2url,this.opponents);
 
 
 }

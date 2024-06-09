@@ -208,7 +208,6 @@ app.get('/past-matches', async (req, res) => {
         league: match.league.name,
         leagueurl: match.league.image_url,
         serie: match.serie.name,
-        name: match.videogame.name,
         // Füge weitere Felder hinzu, die du senden möchtest
       }));
       

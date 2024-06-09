@@ -9,7 +9,7 @@ import 'LoL_Teams.dart';
 class Loader {
 
 
-  String ipAdress ='192.168.0.34';
+  String ipAdress ='192.168.2.125';
 
 
 
@@ -176,8 +176,8 @@ class Loader {
         for (var match in matches) {
           final String name = match['name'];
           final String timestamp = match['begin_at'];
-          final String series = match['serie'];
-          final String leagueurl = match['leagueurl'];
+          final String serie = match['serie'];
+          final String leagueUrl = match['leagueurl'];
           final String league = match['league'];
           final List<dynamic> opponents = match['opponents'];
           String opponent1 = '';
@@ -199,7 +199,7 @@ class Loader {
 
           print("matches $opponent1 $opponent2");
 
-          final pastMatch = PastMatches(name, opponent1, opponent2, opponent1url, opponent2url, timestamp, league, series, leagueurl, '');
+          final pastMatch = PastMatches(name,timestamp,league,leagueUrl,opponent1,opponent2,serie,opponent1url,opponent2url,'');
           pastMatchesList.add(pastMatch);
         }
       } else {
