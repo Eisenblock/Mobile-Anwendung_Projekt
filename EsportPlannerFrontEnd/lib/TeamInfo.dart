@@ -13,5 +13,5 @@ class TeamInfo {
   String userID;
 
 
-  TeamInfo(this.name,this.opponent1,this.opponent1url,this.opponent2, this.opponent2url, this.date, this.time, this.league, this.series, this.leagueurl,this.timeCalender,this.userID);
+  TeamInfo(this.name,this.opponent1,this.opponent1url,this.opponent2,this.opponent2url, this.date, this.time, this.league, this.series, this.leagueurl,this.timeCalender,this.userID);
 }

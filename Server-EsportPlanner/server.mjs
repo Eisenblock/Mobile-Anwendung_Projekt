@@ -174,7 +174,7 @@ app.get('/lol/teams', async (req, res) => {
     .filter(team => team.players[0]  != null) // Filtern der Ligen, bei denen season nicht null ist
     .map(team => ({
       name: team.name,
-      //players : team.players,
+      players : team.players,
     }));
 
 
