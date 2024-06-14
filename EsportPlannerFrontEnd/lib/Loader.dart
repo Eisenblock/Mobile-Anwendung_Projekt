@@ -10,6 +10,7 @@ import 'LoL_Leagues.dart';
 class Loader{
 
 
+
  Future<List<Users>> fetchUsers() async {
   List<Users> userList = [];  // Umbenennung der Variablen, um Verwechslungen zu vermeiden
   final response = await http.get(Uri.parse('http://192.168.0.44:3000/user'));
@@ -49,7 +50,7 @@ class Loader{
       final dynamic dataLoL = combinedData['lol'];
       final dynamic dataValo = combinedData['valorant'];
       
-
+    if(dataLoL != null){
         for (var match in dataLoL) {
           final String name = match['name'];
           final String timestamp = match['begin_at'];
@@ -82,7 +83,7 @@ class Loader{
           final teamInfo = TeamInfo(name,opponent1,opponent1url,opponent2,opponent2url, date,time, league, series, leagueurl,timeCalender, '');
           teamInfos.add(teamInfo);
         }
-
+    }
   if(dataValo != null){
           for (var match in dataValo) {
             final String name = match['name'];
@@ -104,6 +105,8 @@ class Loader{
             if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
             opponent1 = match['opponents'][0]['opponent']['name'];
             opponent2 = match['opponents'][1]['opponent']['name'];
+  
+  
             opponent1url = match['opponents'][0]['opponent']['image_url'];
             opponent2url = match['opponents'][1]['opponent']['image_url'];
             }else{
@@ -123,16 +126,20 @@ class Loader{
 }
  //List<TeamInfo> get teamInfos => teamInfos;
 
-Future<List<LoL_Leagues>> fetchAllLeaguesLoL() async {
+Future<List<LoL_Leagues>> fetchAllLeagues() async {
   List<LoL_Leagues> lolLeagues  = [];  
-  final response = await http.get(Uri.parse('http://192.168.0.44:3000/lol/leagues'));
+  List<LoL_Leagues> valoLeagues  = [];
+  List<LoL_Leagues> allLeagues  = [];
+  final response = await http.get(Uri.parse('http://192.168.0.44:3000/allGames/leagues'));
 
   if (response.statusCode == 200) {
     final dynamic combinedData = json.decode(response.body);      
-    final dynamic dataLoL_Leagues = combinedData['leagues'];
+    final dynamic dataLoL_Leagues = combinedData['lolLeagues'];
+    final dynamic dataValo_Leagues = combinedData['valorantLeagues'];
       
 
         for (var league in dataLoL_Leagues) {
+          //final String videoGame = league['videogame'];
           final String name = league['name'];
           String url = '';
           if(league['image_url'] == null){
@@ -140,32 +147,51 @@ Future<List<LoL_Leagues>> fetchAllLeaguesLoL() async {
           }else{
             url = league['image_url'];
           }
+
+          
         
-          final LoL_Leagues lolLeague = LoL_Leagues(name,url);
-          lolLeagues.add(lolLeague);
+          LoL_Leagues lolLeague = LoL_Leagues(name,url,"lol");
+          allLeagues.add(lolLeague);
+        }
+
+        for(var league in dataValo_Leagues){
+          final String name = league['name'];
+          String url = '';
+          if(league['image_url'] == null){
+            url = "keine Daten";
+          }else{
+            url = league['image_url'];
+          }
+
+          //final String videoGame = league['videogame'];
+        
+          LoL_Leagues valoLeague = LoL_Leagues(name,url,"valorant");
+          allLeagues.add(valoLeague);
         }
   
 
 }
-  return lolLeagues;
+  print(allLeagues[0].videoGame);
+  return allLeagues;
 }
 
   Future<List<LoL_Team>> fetchAllTeamsLoL() async {
     List<LoL_Team> teams  = [];  
-    final response = await http.get(Uri.parse('http:// 192.168.0.44:3000/lol/teams'));
+    final response = await http.get(Uri.parse('http://192.168.0.44:3000/allGames/teams'));
 
     if (response.statusCode == 200) {
       final dynamic combinedData = json.decode(response.body);      
-      final dynamic dataLoL_teams = combinedData['teams'];
+      final dynamic dataLoL_teams = combinedData['lolTeams'];
         
 
           for (var league in dataLoL_teams) {
             final String name = league['name'];
+            final String videogame = league['videogame'];
             
 
             
           
-            final LoL_Team lolLeague = LoL_Team(name,[]);
+            final LoL_Team lolLeague = LoL_Team(name,[],videogame);
             teams.add(lolLeague);
           }
     }

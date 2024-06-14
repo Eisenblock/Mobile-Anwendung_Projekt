@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema( {
   name: String,
   selectedGames: [String], // Spiele, die der Benutzer ausgewählt hat
   selectedLeagues: [String], // Ligen, die der Benutzer ausgewählt hat
+  selectedTeams: [String], // Teams, die der Benutzer ausgewählt hat
   username: String,
   password : String
 });
@@ -126,15 +127,23 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
       }));
 
       // Filtere die Spiele nach den ausgewählten Ligen des Benutzers
-      const filteredByLeagues = filteredData.filter(match => selectedLeagues.includes(match.league));
+      console.log(selectedLeagues.length);
 
       
 
       // Speichern der gefilterten und sortierten Daten für jedes Spiel separat
-      combinedData[game] = filteredByLeagues;
+      if(selectedLeagues.length > 0)
+      {
+      combinedData[game] = filteredData.filter(match => selectedLeagues.includes(match.league));
+      }
+      else
+      {
+        combinedData[game] = filteredData;
+      }
+
     }
 
-    console.log(combinedData);
+  //  console.log(combinedData);
     // Senden der kombinierten und gefilterten Daten als JSON an das Frontend
     res.json(combinedData);
   } catch (error) {
@@ -143,24 +152,104 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
   }
 });
 
-app.get('/lol/leagues', async (req, res) => {
+app.get('/allGames/leagues', async (req, res) => {
+  try {
+    const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
+    const apiUrlLOL = 'https://api.pandascore.co/lol/leagues';
+    const apiUrlVALO = 'https://api.pandascore.co/valorant/leagues';
 
-  const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
-  const apiUrl = 'https://api.pandascore.co/lol/leagues';
-  const response = await fetch(`${apiUrl}?token=${apiKey}`);
-  const data = await response.json();
+    // Parallele Ausführung der beiden API-Anfragen
+    const [responseLOL, responseVALO] = await Promise.all([
+      fetch(`${apiUrlLOL}?token=${apiKey}`),
+      fetch(`${apiUrlVALO}?token=${apiKey}`)
+    ]);
 
-  const filteredData = data
-    .filter(league => league.series[0].season !== null) // Filtern der Ligen, bei denen season nicht null ist
-    .map(league => ({
-      name: league.name,
-      image_url: league.image_url,
-      season: league.series[0].season,
-    }));
+    // Überprüfung der Antworten
+    if (!responseLOL.ok || !responseVALO.ok) {
+      throw new Error('Error fetching data');
+    }
 
+    // Extrahieren der Daten aus den Antworten
+    const dataLOL = await responseLOL.json();
+    const dataVALO = await responseVALO.json();
 
+    // Filtern und Mappen der Daten für League of Legends
+    const filteredDataLOL = dataLOL
+      .filter(league => league.series[0].season !== null)
+      .map(league => ({
+        name: league.name
+      }));
 
-  res.json({leagues : filteredData});
+    // Filtern und Mappen der Daten für Valorant
+    const filteredDataVALO = dataVALO
+      .filter(league => league.series[0].season !== null)
+      .map(league => ({
+        name: league.name
+      }));
+
+    // Kombinieren der Daten
+    const combinedData = {
+      lolLeagues: filteredDataLOL,
+      valorantLeagues: filteredDataVALO
+    };
+
+    // Senden der kombinierten Daten als JSON-Antwort
+    res.status(200).json(combinedData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/allGames/teams', async (req, res) => {
+  try {
+    const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
+    const apiUrlLOL = 'https://api.pandascore.co/lol/teams';
+    const apiUrlVALO = 'https://api.pandascore.co/valorant/teams';
+
+    // Parallele Ausführung der beiden API-Anfragen
+    const [responseLOL, responseVALO] = await Promise.all([
+      fetch(`${apiUrlLOL}?token=${apiKey}`),
+      fetch(`${apiUrlVALO}?token=${apiKey}`)
+    ]);
+
+    // Überprüfung der Antworten
+    if (!responseLOL.ok || !responseVALO.ok) {
+      throw new Error('Error fetching data');
+    }
+
+    // Extrahieren der Daten aus den Antworten
+    const dataLOL = await responseLOL.json();
+    const dataVALO = await responseVALO.json();
+
+    // Filtern und Mappen der Daten für League of Legends
+    const filteredDataLOL = dataLOL
+      .filter(team => team.players.length >0)
+      .map(team => ({
+        videogame: "lol",
+        name: team.name
+      }));
+
+    // Filtern und Mappen der Daten für Valorant
+    const filteredDataVALO = dataVALO
+      .filter(team => team.players.length >0)
+      .map(team => ({
+        videogame: "valorant",
+        name: team.name
+      }));
+
+    // Kombinieren der Daten
+    const combinedData = {
+      lolTeams: filteredDataLOL,
+      valorantTeams: filteredDataVALO
+    };
+
+    // Senden der kombinierten Daten als JSON-Antwort
+    res.status(200).json(combinedData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 app.get('/lol/teams', async (req, res) => {

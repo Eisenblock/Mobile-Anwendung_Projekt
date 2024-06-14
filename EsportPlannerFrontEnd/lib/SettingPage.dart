@@ -6,6 +6,7 @@ import 'user_model.dart';
 import 'LoL_Leagues.dart';
 import 'loader.dart';
 import 'LoL_Teams.dart';
+import 'AdvanceSettingPage.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -37,7 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
 Future<void> fetchLeagues() async {
     List<LoL_Leagues> _leagues = [];
-    _leagues = await loader.fetchAllLeaguesLoL();
+    _leagues = await loader.fetchAllLeagues();
    
     setState(() {
       leagues = _leagues;
@@ -66,7 +67,7 @@ Future<void> fetchTeams() async {
       body: jsonEncode(<String, dynamic>{
         
         'selectedGames': selectedGames,
-        'selectedLeagues': selectedLeagues,
+       
       }),
     );
 
@@ -91,6 +92,15 @@ Widget build(BuildContext context) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+                        SizedBox(height: 20), // Add some space between sections
+            ElevatedButton(
+              onPressed: () {
+                // Hier navigierst du zur Seite "AdvanceSettings", wenn der Button gedrückt wird
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AdvanceSettingPage()));
+              },
+              child: Text('Advanced Settings'),
+            ),
+
             Text('Choose your games:'),
             ListView.builder(
               physics: NeverScrollableScrollPhysics(),
@@ -108,7 +118,7 @@ Widget build(BuildContext context) {
                 );
               },
             ),
-            SizedBox(height: 20), // Add some space between sections
+           /* SizedBox(height: 20), // Add some space between sections
             Text('Choose your leagues:'),
             ListView.builder(
               physics: NeverScrollableScrollPhysics(),
@@ -125,7 +135,7 @@ Widget build(BuildContext context) {
                   },
                 );
               },
-            ),
+            ),*/
            
             SizedBox(height: 20), // Add some space between sections
             ElevatedButton(

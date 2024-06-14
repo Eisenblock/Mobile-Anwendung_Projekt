@@ -27,7 +27,6 @@ class _RegistrationFormState extends State<RegistrationForm> {
         'username': username,
         'password': password,
         'selectedGames': _selectedGames,
-        'selectedLeagues': []
       };
 
       final response = await http.post(

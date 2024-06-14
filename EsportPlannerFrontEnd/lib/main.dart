@@ -7,6 +7,7 @@ import 'LoginScreen.dart';// Die LoginScreen befindet sich in der Datei LoginScr
 import 'user_model.dart'; // Die UserModel befindet sich in der Datei user_model.dart
 import 'SettingPage.dart'; // Die SettingPage befindet sich in der Datei SettingPage.dart
 import 'anmeldung.dart'; // Die RegistrationForm befindet sich in der Datei anmeldung.dart
+import 'AdvanceSettingPage.dart'; // Die AdvanceSettingPage befindet sich in der Datei AdvanceSettingPage.dart
 
 void main() {
   runApp(
@@ -29,12 +30,13 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/statistik': (context) => MyStatistik(title: 'Statistik Seite'),
-        '/calender': (context) => CalendarPage(title: 'Calender Seite'),
+        '/calender': (context) => CalendarPage(title: 'Calender Page',),
         '/login': (context) => LoginScreen(),
         '/MyHomePage': (context) => MyHomePage(title: 'Esport Planner'),
         '/settings': (context) => SettingsPage(),
         '/anmeldung': (context) => RegistrationForm(),
         '/login': (context) => LoginScreen(),
+        '/advanceSetting': (context) => AdvanceSettingPage(),
       },
     );
   }
