@@ -16,9 +16,15 @@ class MyStatistik extends StatefulWidget {
 
 class _MyStatistikState extends State<MyStatistik> {
   List<PastMatches> _pastmatches = [];
-  List<LoL_Team> _Teams = [];
+  List<LoL_Team> _teams = [];
   final Loader _loader = Loader();
-  String _currentView = 'none'; // Variable to keep track of the current view
+
+  @override
+  void initState() {
+    super.initState();
+    // Load initial data when the widget is first created
+    fetchAllTeamsLoL();
+  }
 
   Future<void> fetchPastMatches() async {
     final String userId = Provider.of<UserModel>(context, listen: false).id;
@@ -26,11 +32,10 @@ class _MyStatistikState extends State<MyStatistik> {
       List<PastMatches> pastmatch = await _loader.fetchPastMatches(userId);
       setState(() {
         _pastmatches = pastmatch;
-        _currentView = 'pastMatches';
       });
       print('Fetched ${_pastmatches.length} past matches');
     } catch (e) {
-      print('Failed to fetch team infos: $e');
+      print('Failed to fetch past matches: $e');
     }
   }
 
@@ -38,10 +43,9 @@ class _MyStatistikState extends State<MyStatistik> {
     try {
       List<LoL_Team> teams = await _loader.fetchAllTeamsLoL();
       setState(() {
-        _Teams = teams;
-        _currentView = 'teams';
+        _teams = teams;
       });
-      print('Fetched ${_Teams.length} Teams');
+      print('Fetched ${_teams.length} Teams');
     } catch (e) {
       print('Failed to fetch team infos: $e');
     }
@@ -70,11 +74,15 @@ class _MyStatistikState extends State<MyStatistik> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: fetchAllTeamsLoL,
+                onPressed: () {
+                  fetchAllTeamsLoL();
+                },
                 child: Text('Kader'),
               ),
               ElevatedButton(
-                onPressed: fetchPastMatches,
+                onPressed: () {
+                  fetchPastMatches();
+                },
                 child: Text('Last Played Matches'),
               ),
               ElevatedButton(
@@ -89,11 +97,9 @@ class _MyStatistikState extends State<MyStatistik> {
           ),
           SizedBox(height: 20),
           Expanded(
-            child: _currentView == 'teams'
-                ? buildTeams()
-                : _currentView == 'pastMatches'
-                    ? buildPastMatches()
-                    : Center(child: Text('Select an option')),
+            child: 
+                    buildPastMatches()
+                     Center(child: Text('Select an option')),
           ),
         ],
       ),
@@ -176,28 +182,34 @@ class _MyStatistikState extends State<MyStatistik> {
   }
 
   Widget buildTeams() {
-    if (_Teams.isEmpty) {
-      return Center(child: Text('No team infos available'));
+    if (_teams.isEmpty) {
+      return Center(child: CircularProgressIndicator());
     } else {
       return ListView.builder(
-        itemCount: _Teams.length,
+        itemCount: _teams.length,
         itemBuilder: (context, index) {
-          final team = _Teams[index];
+          final team = _teams[index];
           return Padding(
             padding: const EdgeInsets.all(4.0),
             child: Card(
-              child: ListTile(
-                title: Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        '${team.name}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text('${team.teamMembers}'),
-                    ],
+              child: Column(
+                children: [
+                  Center(
+                    child: Text(
+                      team.name,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
+                  GridView.count(
+                    shrinkWrap: true,
+                    crossAxisCount: 2,
+                    children: team.teamMembers.map((member) {
+                      return Center(
+                        child: Text('${member.firstName} ${member.lastName}'),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
             ),
           );

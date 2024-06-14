@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'past_matches.dart';
 import 'TeamInfo.dart';
 import 'Users.dart';
 import 'LoL_Leagues.dart';
 import 'LoL_Teams.dart';
+import 'Lol_TeamMember.dart';
 
 class Loader {
 
@@ -145,23 +147,36 @@ class Loader {
     return lolLeagues;
   }
 
-  Future<List<LoL_Team>> fetchAllTeamsLoL() async {
-    List<LoL_Team> teams = [];
-    final response = await http.get(Uri.parse('http://$ipAdress:3000/lol/teams'));
+Future<List<LoL_Team>> fetchAllTeamsLoL() async {
+  List<LoL_Team> teams = [];
+  final response = await http.get(Uri.parse('http://$ipAdress:3000/lol/teams'));
 
-    if (response.statusCode == 200) {
-      final dynamic combinedData = json.decode(response.body);
-      final dynamic dataLoL_teams = combinedData['teams'];
+  if (response.statusCode == 200) {
+    final dynamic combinedData = json.decode(response.body);
+    final List<dynamic> dataLoL_teams = combinedData['teams'];
 
-      for (var league in dataLoL_teams) {
-        final String name = league['name'];
-        final LoL_Team lolTeam = LoL_Team(name, []);
-        teams.add(lolTeam);
+    for (var league in dataLoL_teams) {
+      final String name = league['name'];
+      final List<dynamic> membersDynamic = league['teamMembers'];
+      List<LoL_TeamMember> teamMembers = [];
+
+      for (var member in membersDynamic) {
+        final String firstName = member['first_name'];
+        final String lastName = member['last_name'];
+        final LoL_TeamMember teamMember = LoL_TeamMember(firstName, lastName);
+        teamMembers.add(teamMember);
       }
-    }
 
-    return teams;
+      final LoL_Team lolTeam = LoL_Team(name, teamMembers);
+      teams.add(lolTeam);
+    }
+  } else {
+    // Handle error response here
+    throw Exception('Failed to load teams');
   }
+
+  return teams;
+}
 
   Future<List<PastMatches>> fetchPastMatches(String id) async {
     List<PastMatches> pastMatchesList = [];
