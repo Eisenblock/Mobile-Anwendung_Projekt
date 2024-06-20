@@ -17,38 +17,33 @@ class MyStatistik extends StatefulWidget {
 class _MyStatistikState extends State<MyStatistik> {
   List<PastMatches> _pastmatches = [];
   List<LoL_Team> _teams = [];
-  final Loader _loader = Loader();
+  Loader _loader = Loader();
+  bool showPastMatches = false;
+  bool showTeams = false;
 
   @override
   void initState() {
     super.initState();
     // Load initial data when the widget is first created
-    fetchAllTeamsLoL();
+    fetchPastMatches();
   }
 
   Future<void> fetchPastMatches() async {
     final String userId = Provider.of<UserModel>(context, listen: false).id;
-    try {
+   
       List<PastMatches> pastmatch = await _loader.fetchPastMatches(userId);
       setState(() {
         _pastmatches = pastmatch;
       });
       print('Fetched ${_pastmatches.length} past matches');
-    } catch (e) {
-      print('Failed to fetch past matches: $e');
-    }
-  }
+  } 
 
   Future<void> fetchAllTeamsLoL() async {
-    try {
+    
       List<LoL_Team> teams = await _loader.fetchAllTeamsLoL();
       setState(() {
         _teams = teams;
       });
-      print('Fetched ${_teams.length} Teams');
-    } catch (e) {
-      print('Failed to fetch team infos: $e');
-    }
   }
 
   String formatDate(String dateTimeString) {
@@ -61,7 +56,7 @@ class _MyStatistikState extends State<MyStatistik> {
     return '${dateTime.hour}:${dateTime.minute}';
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -76,31 +71,29 @@ class _MyStatistikState extends State<MyStatistik> {
               ElevatedButton(
                 onPressed: () {
                   fetchAllTeamsLoL();
+                  setState(() {
+                    showTeams = true;
+                    showPastMatches = false;
+                  });
                 },
                 child: Text('Kader'),
               ),
               ElevatedButton(
                 onPressed: () {
-                  fetchPastMatches();
-                },
-                child: Text('Last Played Matches'),
-              ),
-              ElevatedButton(
-                onPressed: () {
                   setState(() {
-                    _currentView = 'button3';
+                    showPastMatches = true;
+                    showTeams = false;
                   });
                 },
-                child: Text('Button 3'),
+                child: Text('Last Played Matches'),
               ),
             ],
           ),
           SizedBox(height: 20),
-          Expanded(
-            child: 
-                    buildPastMatches()
-                     Center(child: Text('Select an option')),
-          ),
+          if (showPastMatches)
+            Expanded(child: buildPastMatches()), // `Expanded` für das richtige Layout mit `ListView`
+          if (showTeams)
+            Expanded(child: buildTeams()), // `Expanded` für das richtige Layout mit `ListView`
         ],
       ),
     );
@@ -152,7 +145,7 @@ class _MyStatistikState extends State<MyStatistik> {
                       children: [
                         const Icon(Icons.calendar_today, size: 16.0),
                         SizedBox(width: 5),
-                        Text('Date: ${formatDate(pastMatches.beginAt)}'),
+                        Text('Date: ${pastMatches.date}'),
                       ],
                     ),
                     Row(
@@ -160,7 +153,7 @@ class _MyStatistikState extends State<MyStatistik> {
                       children: [
                         const Icon(Icons.access_time, size: 16.0),
                         SizedBox(width: 5),
-                        Text('Time: ${formatTime(pastMatches.beginAt)}'),
+                        Text('Time: ${pastMatches.time}'),
                       ],
                     ),
                     Row(
@@ -181,40 +174,53 @@ class _MyStatistikState extends State<MyStatistik> {
     }
   }
 
-  Widget buildTeams() {
-    if (_teams.isEmpty) {
-      return Center(child: CircularProgressIndicator());
-    } else {
-      return ListView.builder(
-        itemCount: _teams.length,
-        itemBuilder: (context, index) {
-          final team = _teams[index];
-          return Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Card(
-              child: Column(
-                children: [
-                  Center(
+ Widget buildTeams() {
+  if (_teams.isEmpty) {
+    return Center(child: CircularProgressIndicator());
+  } else {
+    return ListView.builder(
+      itemCount: _teams.length,
+      itemBuilder: (context, index) {
+        final team = _teams[index];
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
                     child: Text(
                       team.name,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
-                  GridView.count(
-                    shrinkWrap: true,
-                    crossAxisCount: 2,
-                    children: team.teamMembers.map((member) {
-                      return Center(
-                        child: Text('${member.firstName} ${member.lastName}'),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
+                ),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  children: team.teamMembers.map((member) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.network(member.image_url, height: 50),
+                          SizedBox(height: 8), // Optionaler Abstand zwischen Bild und Text
+                          Text('${member.firstName} ${member.lastName}'),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
-          );
-        },
-      );
-    }
+          ),
+        );
+      },
+    );
   }
+}
+
 }

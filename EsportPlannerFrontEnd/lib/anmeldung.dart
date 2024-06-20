@@ -31,7 +31,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
       };
 
       final response = await http.post(
-        Uri.parse('http://192.168.0.44:3000/user'),
+        Uri.parse('192.168.0.34:3000/user'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );

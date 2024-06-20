@@ -11,7 +11,7 @@ import 'Lol_TeamMember.dart';
 class Loader {
 
 
-  String ipAdress ='192.168.2.125';
+  String ipAdress ='192.168.0.34';
 
 
 
@@ -154,22 +154,38 @@ Future<List<LoL_Team>> fetchAllTeamsLoL() async {
   if (response.statusCode == 200) {
     final dynamic combinedData = json.decode(response.body);
     final List<dynamic> dataLoL_teams = combinedData['teams'];
+  
+    int i = 0;
 
-    for (var league in dataLoL_teams) {
-      final String name = league['name'];
-      final List<dynamic> membersDynamic = league['teamMembers'];
-      List<LoL_TeamMember> teamMembers = [];
+    // Durchlaufe alle Teams
+  for (var league in combinedData['teams']) {
+    final String name = league['name'];
+    List<dynamic> membersDynamic = league['players'];
+    List<LoL_TeamMember> teamMembers = [];
 
-      for (var member in membersDynamic) {
-        final String firstName = member['first_name'];
-        final String lastName = member['last_name'];
-        final LoL_TeamMember teamMember = LoL_TeamMember(firstName, lastName);
-        teamMembers.add(teamMember);
-      }
+    // Debugging-Ausgabe der Team-Daten
+    print('Team: $name');
+    print('Players: $membersDynamic');
 
-      final LoL_Team lolTeam = LoL_Team(name, teamMembers);
-      teams.add(lolTeam);
+    // Durchlaufe alle Spieler eines Teams
+    for (var member in membersDynamic) {
+      // Debugging-Ausgabe der Spieler-Daten
+      print('Player data: $member');
+
+      String firstName = member['first_name'] ?? 'Unknown'; // Fallback-Wert 'Unknown' bei null
+      String lastName = member['last_name'] ?? 'Unknown';   // Fallback-Wert 'Unknown' bei null
+      String image_url = member['image_url'] ?? 'Unknown';   // Fallback-Wert 'Unknown' bei null
+
+      // Debugging-Ausgabe der Namen
+      print('First Name: $firstName, Last Name: $lastName');
+
+      LoL_TeamMember teamMember = LoL_TeamMember(firstName, lastName,image_url);
+      teamMembers.add(teamMember);
     }
+
+    final LoL_Team lolTeam = LoL_Team(name, teamMembers);
+    teams.add(lolTeam);
+  }
   } else {
     // Handle error response here
     throw Exception('Failed to load teams');
@@ -190,7 +206,9 @@ Future<List<LoL_Team>> fetchAllTeamsLoL() async {
 
         for (var match in matches) {
           final String name = match['name'];
-          final String timestamp = match['begin_at'];
+          String timestamp = "12:00:00";
+          String date = '';
+          String time = '';
           final String serie = match['serie'];
           final String leagueUrl = match['leagueurl'];
           final String league = match['league'];
@@ -211,10 +229,11 @@ Future<List<LoL_Team>> fetchAllTeamsLoL() async {
             opponent1url = "keine Daten";
             opponent2url = "keine Daten";
           }
+        
+          //print("matches $opponent1 $opponent2");
 
-          print("matches $opponent1 $opponent2");
-
-          final pastMatch = PastMatches(name,timestamp,league,leagueUrl,opponent1,opponent2,serie,opponent1url,opponent2url,'');
+          final pastMatch = PastMatches(name,timestamp,date,league,leagueUrl,opponent1,opponent2,serie,opponent1url,opponent2url,"");
+       
           pastMatchesList.add(pastMatch);
         }
       } else {
