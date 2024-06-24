@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ma/past_matches.dart';
+import 'package:flutter_application_ma/past_matches.dart'; // Import your PastMatches model
 import 'package:provider/provider.dart';
 import 'Loader.dart';
 import 'user_model.dart';
 import 'LoL_Teams.dart';
+import 'MyHomePage.dart'; // Import your HomePage
 
 class MyStatistik extends StatefulWidget {
   final String title;
@@ -16,34 +17,78 @@ class MyStatistik extends StatefulWidget {
 
 class _MyStatistikState extends State<MyStatistik> {
   List<PastMatches> _pastmatches = [];
+  List<PastMatches> _filteredPastMatches = [];
   List<LoL_Team> _teams = [];
+  List<LoL_Team> _filteredTeams = [];
   Loader _loader = Loader();
-  bool showPastMatches = false;
+  bool showPastMatches = true; // Show past matches by default
   bool showTeams = false;
+  TextEditingController _searchController = TextEditingController();
+  LoL_Team? _selectedTeam; // Track the selected team
 
   @override
   void initState() {
     super.initState();
-    // Load initial data when the widget is first created
     fetchPastMatches();
+    _searchController.addListener(_filterResults);
   }
 
   Future<void> fetchPastMatches() async {
-    final String userId = Provider.of<UserModel>(context, listen: false).id;
-   
-      List<PastMatches> pastmatch = await _loader.fetchPastMatches(userId);
+    try {
+      final String userId = Provider.of<UserModel>(context, listen: false).id;
+      List<PastMatches> pastMatches = await _loader.fetchPastMatches(userId);
       setState(() {
-        _pastmatches = pastmatch;
+        _pastmatches = pastMatches;
+        _filteredPastMatches = pastMatches;
       });
       print('Fetched ${_pastmatches.length} past matches');
-  } 
+    } catch (error) {
+      print('Error fetching past matches: $error');
+      // Handle error as needed
+    }
+  }
 
   Future<void> fetchAllTeamsLoL() async {
-    
+    try {
       List<LoL_Team> teams = await _loader.fetchAllTeamsLoL();
       setState(() {
         _teams = teams;
+        _filteredTeams = teams;
       });
+    } catch (error) {
+      print('Error fetching teams: $error');
+      // Handle error as needed
+    }
+  }
+
+  void _filterResults() {
+    final query = _searchController.text.toLowerCase();
+    if (showTeams) {
+      setState(() {
+        _filteredTeams = _teams.where((team) {
+          return team.name.toLowerCase().contains(query) ||
+              team.teamMembers.any((member) =>
+                  '${member.firstName} ${member.lastName}'.toLowerCase().contains(query));
+        }).toList();
+      });
+    } else if (showPastMatches) {
+      setState(() {
+        _filteredPastMatches = _pastmatches.where((match) {
+          return match.opponent1.toLowerCase().contains(query) ||
+              match.opponent2.toLowerCase().contains(query) ||
+              match.name.toLowerCase().contains(query) ||
+              match.league.toLowerCase().contains(query);
+        }).toList();
+      });
+    }
+  }
+
+  void _resetSearch() {
+    _searchController.clear();
+    setState(() {
+      _filteredTeams = _teams;
+      _filteredPastMatches = _pastmatches;
+    });
   }
 
   String formatDate(String dateTimeString) {
@@ -56,7 +101,22 @@ class _MyStatistikState extends State<MyStatistik> {
     return '${dateTime.hour}:${dateTime.minute}';
   }
 
-   @override
+  void _selectTeam(LoL_Team team) {
+    setState(() {
+      _selectedTeam = team;
+      showTeams = true;
+      showPastMatches = false;
+    });
+  }
+
+  void _navigateToHomePage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => MyHomePage(title: 'Home')),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -66,54 +126,92 @@ class _MyStatistikState extends State<MyStatistik> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  fetchAllTeamsLoL();
-                  setState(() {
-                    showTeams = true;
-                    showPastMatches = false;
-                  });
-                },
-                child: Text('Kader'),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Search',
+                      border: OutlineInputBorder(),
+                      suffixIcon: Icon(Icons.search),
+                    ),
+                  ),
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    showPastMatches = true;
-                    showTeams = false;
-                  });
-                },
-                child: Text('Last Played Matches'),
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: _resetSearch,
+                tooltip: 'Refresh',
               ),
             ],
           ),
           SizedBox(height: 20),
-          if (showPastMatches)
-            Expanded(child: buildPastMatches()), // `Expanded` für das richtige Layout mit `ListView`
-          if (showTeams)
-            Expanded(child: buildTeams()), // `Expanded` für das richtige Layout mit `ListView`
+          Expanded(
+            child: showPastMatches ? buildPastMatches() : buildTeams(),
+          ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Handle action button press
+        },
+        tooltip: 'Action',
+        child: Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                _navigateToHomePage(context);
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.group),
+              onPressed: () {
+                fetchAllTeamsLoL();
+                setState(() {
+                  showTeams = true;
+                  showPastMatches = false;
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.gamepad),
+              onPressed: () {
+                setState(() {
+                  showPastMatches = true;
+                  showTeams = false;
+                });
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget buildPastMatches() {
-    if (_pastmatches.isEmpty) {
+    if (_filteredPastMatches.isEmpty) {
       return Center(child: Text('No past matches available'));
     } else {
       return ListView.builder(
-        itemCount: _pastmatches.length,
+        itemCount: _filteredPastMatches.length,
         itemBuilder: (context, index) {
-          final pastMatches = _pastmatches[index];
+          final pastMatch = _filteredPastMatches[index];
           return Padding(
             padding: const EdgeInsets.all(4.0),
             child: Card(
               child: ListTile(
                 title: Center(
                   child: Text(
-                    '${pastMatches.opponent1} vs ${pastMatches.opponent2}',
+                    '${pastMatch.opponent1} vs ${pastMatch.opponent2}',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -123,29 +221,34 @@ class _MyStatistikState extends State<MyStatistik> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        if (pastMatches.opponent1url != 'keine Daten')
-                          Image.network(pastMatches.opponent1url, height: 50),
+                        if (pastMatch.opponent1url != 'keine Daten')
+                          Row(
+                            children: [
+                              Image.network(pastMatch.opponent1url, height: 50),
+                              SizedBox(width: 5),
+                              Text(pastMatch.winner1),
+                            ],
+                          ),
+                        SizedBox(width: 10),
                         Text('vs'),
                         SizedBox(width: 10),
-                        if (pastMatches.opponent2url != 'keine Daten')
-                          Image.network(pastMatches.opponent2url, height: 50),
+                        if (pastMatch.opponent2url != 'keine Daten')
+                          Row(
+                            children: [
+                              Text(pastMatch.winner2),
+                              SizedBox(width: 5),
+                              Image.network(pastMatch.opponent2url, height: 50),
+                            ],
+                          ),
                       ],
                     ),
                     SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.gamepad, size: 16.0),
-                        SizedBox(width: 5),
-                        Text('Game: ${pastMatches.name}'),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
                         const Icon(Icons.calendar_today, size: 16.0),
                         SizedBox(width: 5),
-                        Text('Date: ${pastMatches.date}'),
+                        Text('Date: ${formatDate(pastMatch.begin_at)}'),
                       ],
                     ),
                     Row(
@@ -153,15 +256,15 @@ class _MyStatistikState extends State<MyStatistik> {
                       children: [
                         const Icon(Icons.access_time, size: 16.0),
                         SizedBox(width: 5),
-                        Text('Time: ${pastMatches.time}'),
+                        Text('Time: ${formatTime(pastMatch.begin_at)}'),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.network(pastMatches.leagueUrl, height: 50),
+                        Image.network(pastMatch.leagueUrl, height: 50),
                         SizedBox(width: 5),
-                        Text('League: ${pastMatches.league}'),
+                        Text('League: ${pastMatch.league}'),
                       ],
                     ),
                   ],
@@ -174,53 +277,66 @@ class _MyStatistikState extends State<MyStatistik> {
     }
   }
 
- Widget buildTeams() {
-  if (_teams.isEmpty) {
-    return Center(child: CircularProgressIndicator());
-  } else {
-    return ListView.builder(
-      itemCount: _teams.length,
-      itemBuilder: (context, index) {
-        final team = _teams[index];
-        return Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Card(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: Text(
-                      team.name,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  children: team.teamMembers.map((member) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+  Widget buildTeams() {
+    if (_filteredTeams.isEmpty) {
+      return Center(child: Text('No teams found'));
+    } else {
+      return ListView.builder(
+        itemCount: _filteredTeams.length,
+        itemBuilder: (context, index) {
+          final team = _filteredTeams[index];
+          return GestureDetector(
+            onTap: () {
+              _selectTeam(team);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Image.network(member.image_url, height: 50),
-                          SizedBox(height: 8), // Optionaler Abstand zwischen Bild und Text
-                          Text('${member.firstName} ${member.lastName}'),
+                          Text(
+                            team.name,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )
                         ],
                       ),
-                    );
-                  }).toList(),
+                    ),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      children: team.teamMembers.map((member) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              member.image_url.isNotEmpty
+                                  ? Image.network(member.image_url, height: 50)
+                                  : CircleAvatar(
+                                      child: Icon(Icons.person),
+                                      radius: 25,
+                                    ), // Placeholder image if image_url is empty
+                              SizedBox(height: 8),
+                              Text('${member.firstName} ${member.lastName}'),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    }
   }
 }
 
-}

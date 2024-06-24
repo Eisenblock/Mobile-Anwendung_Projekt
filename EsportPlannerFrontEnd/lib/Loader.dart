@@ -11,7 +11,7 @@ import 'Lol_TeamMember.dart';
 class Loader {
 
 
-  String ipAdress ='192.168.0.34';
+  String ipAdress ='192.168.2.125';
 
 
 
@@ -195,52 +195,74 @@ Future<List<LoL_Team>> fetchAllTeamsLoL() async {
 }
 
   Future<List<PastMatches>> fetchPastMatches(String id) async {
-    List<PastMatches> pastMatchesList = [];
-    final response = await http.get(Uri.parse('http://$ipAdress:3000/past-matches'));
+  List<PastMatches> pastMatchesList = [];
+  final response = await http.get(Uri.parse('http://$ipAdress:3000/past-matches'));
 
-    if (response.statusCode == 200) {
-      final dynamic combinedData = json.decode(response.body);
+  if (response.statusCode == 200) {
+    final dynamic combinedData = json.decode(response.body);
 
-      if (combinedData['lol'] != null) {
-        final List<dynamic> matches = combinedData['lol'];
+    if (combinedData['lol'] != null) {
+      final List<dynamic> matches = combinedData['lol'];
 
-        for (var match in matches) {
-          final String name = match['name'];
-          String timestamp = "12:00:00";
-          String date = '';
-          String time = '';
-          final String serie = match['serie'];
-          final String leagueUrl = match['leagueurl'];
-          final String league = match['league'];
-          final List<dynamic> opponents = match['opponents'];
-          String opponent1 = '';
-          String opponent2 = '';
-          String opponent1url = '';
-          String opponent2url = '';
+      for (var match in matches) {
+        final String name = match['name'] ?? 'Unknown';
+       String timestamp = "12:00:00"; // Static value as per original code
+        String date = '';
+        String begin_at = match['begin_at'];
+        final String time = '';
+        final String serie = match['serie'] ?? 'Unknown';
+        final String leagueUrl = match['leagueurl'] ?? 'Unknown';
+        final String league = match['league'] ?? 'Unknown';
+        final List<dynamic> opponents = match['opponents'] ?? [];
+        final List<dynamic> results = match['results'] ?? [];
 
-          if (opponents.isNotEmpty && opponents.length > 1) {
-            opponent1 = opponents[0]['opponent']['name'] ?? "keine Daten";
-            opponent2 = opponents[1]['opponent']['name'] ?? "keine Daten";
-            opponent1url = opponents[0]['opponent']['image_url'] ?? "keine Daten";
-            opponent2url = opponents[1]['opponent']['image_url'] ?? "keine Daten";
-          } else {
-            opponent1 = "keine Daten";
-            opponent2 = "keine Daten";
-            opponent1url = "keine Daten";
-            opponent2url = "keine Daten";
-          }
-        
-          //print("matches $opponent1 $opponent2");
+        String opponent1 = 'keine Daten';
+        String opponent2 = 'keine Daten';
+        String opponent1url = 'keine Daten';
+        String opponent2url = 'keine Daten';
+        String winner1 = 'keine Daten';
+        String winner2 = 'keine Daten';
 
-          final pastMatch = PastMatches(name,timestamp,date,league,leagueUrl,opponent1,opponent2,serie,opponent1url,opponent2url,"");
-       
-          pastMatchesList.add(pastMatch);
+        if (opponents.isNotEmpty && opponents.length > 1) {
+          opponent1 = opponents[0]['opponent']['name'] ?? "keine Daten";
+          opponent2 = opponents[1]['opponent']['name'] ?? "keine Daten";
+          opponent1url = opponents[0]['opponent']['image_url'] ?? "keine Daten";
+          opponent2url = opponents[1]['opponent']['image_url'] ?? "keine Daten";
         }
-      } else {
-        print('Failed to fetch past matches for user');
-      }
-    }
 
-    return pastMatchesList;
+        if (results.isNotEmpty && results.length > 1) {
+          winner1 = results[0]['score'].toString() ?? "keine Daten";
+          winner2 = results[1]['score'].toString() ?? "keine Daten";
+        }
+
+        final pastMatch = PastMatches(
+          name,
+          time,
+          date,
+          begin_at,
+          league,
+          leagueUrl,
+          opponent1,
+          opponent2,
+          serie,
+          opponent1url,
+          opponent2url,
+          opponents.toString(), // Storing opponents as a string
+          winner1,
+          winner2,
+          '', // Assuming `winner` field is empty as it's not clear from the API
+        );
+
+        pastMatchesList.add(pastMatch);
+      }
+    } else {
+      print('No past matches data found.');
+    }
+  } else {
+    throw Exception('Failed to load past matches');
   }
+
+  return pastMatchesList;
+}
+
 }
