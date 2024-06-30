@@ -241,16 +241,22 @@ class _MyStatistikState extends State<MyStatistik> {
                           children: [
                             Image.network(pastMatch.opponent1url, height: 50),
                             SizedBox(height: 5),
-                            Text(pastMatch.winner1),
+                            Text(
+                              pastMatch.winner1,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                       Text('vs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                       if (pastMatch.opponent2url != 'keine Daten')
                         Column(
                           children: [
-                            Text(pastMatch.winner2),
-                            SizedBox(height: 5),
                             Image.network(pastMatch.opponent2url, height: 50),
+                            SizedBox(height: 5),
+                            Text(
+                              pastMatch.winner2,
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                     ],
@@ -282,6 +288,7 @@ class _MyStatistikState extends State<MyStatistik> {
     );
   }
 }
+
 
 
   Widget buildTeams() {
