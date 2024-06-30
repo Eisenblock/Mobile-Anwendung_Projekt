@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'Loader.dart';
 import 'user_model.dart';
 import 'LoL_Teams.dart';
-import 'MyHomePage.dart'; // Import your HomePage
+import 'MyHomePage.dart';
+ // Import your HomePage
 
 class MyStatistik extends StatefulWidget {
   final String title;
@@ -116,6 +117,19 @@ class _MyStatistikState extends State<MyStatistik> {
     );
   }
 
+  void _filterByGame(String game) {
+    setState(() {
+      if (game == 'lol') {
+        showPastMatches = true;
+        showTeams = false;
+      } else if (game == 'valorant') {
+        fetchAllTeamsLoL(); // Adjust if you have a specific fetch function for Valorant teams
+        showTeams = true;
+        showPastMatches = false;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,11 +139,11 @@ class _MyStatistikState extends State<MyStatistik> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -139,13 +153,13 @@ class _MyStatistikState extends State<MyStatistik> {
                     ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: Icon(Icons.refresh),
-                onPressed: _resetSearch,
-                tooltip: 'Refresh',
-              ),
-            ],
+                IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: _resetSearch,
+                  tooltip: 'Refresh',
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 20),
           Expanded(
@@ -197,85 +211,78 @@ class _MyStatistikState extends State<MyStatistik> {
     );
   }
 
-  Widget buildPastMatches() {
-    if (_filteredPastMatches.isEmpty) {
-      return Center(child: Text('No past matches available'));
-    } else {
-      return ListView.builder(
-        itemCount: _filteredPastMatches.length,
-        itemBuilder: (context, index) {
-          final pastMatch = _filteredPastMatches[index];
-          return Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Card(
-              child: ListTile(
-                title: Center(
-                  child: Text(
+ Widget buildPastMatches() {
+  if (_filteredPastMatches.isEmpty) {
+    return Center(child: Text('No past matches available'));
+  } else {
+    return ListView.builder(
+      itemCount: _filteredPastMatches.length,
+      itemBuilder: (context, index) {
+        final pastMatch = _filteredPastMatches[index];
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Card(
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text(
                     '${pastMatch.opponent1} vs ${pastMatch.opponent2}',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
+                  subtitle: Text('Date: ${formatDate(pastMatch.begin_at)} | Time: ${formatTime(pastMatch.begin_at)}'),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if (pastMatch.opponent1url != 'keine Daten')
+                        Column(
+                          children: [
+                            Image.network(pastMatch.opponent1url, height: 50),
+                            SizedBox(height: 5),
+                            Text(pastMatch.winner1),
+                          ],
+                        ),
+                      Text('vs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      if (pastMatch.opponent2url != 'keine Daten')
+                        Column(
+                          children: [
+                            Text(pastMatch.winner2),
+                            SizedBox(height: 5),
+                            Image.network(pastMatch.opponent2url, height: 50),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (pastMatch.opponent1url != 'keine Daten')
-                          Row(
-                            children: [
-                              Image.network(pastMatch.opponent1url, height: 50),
-                              SizedBox(width: 5),
-                              Text(pastMatch.winner1),
-                            ],
-                          ),
-                        SizedBox(width: 10),
-                        Text('vs'),
-                        SizedBox(width: 10),
-                        if (pastMatch.opponent2url != 'keine Daten')
-                          Row(
-                            children: [
-                              Text(pastMatch.winner2),
-                              SizedBox(width: 5),
-                              Image.network(pastMatch.opponent2url, height: 50),
-                            ],
-                          ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.calendar_today, size: 16.0),
-                        SizedBox(width: 5),
-                        Text('Date: ${formatDate(pastMatch.begin_at)}'),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.access_time, size: 16.0),
-                        SizedBox(width: 5),
-                        Text('Time: ${formatTime(pastMatch.begin_at)}'),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.network(pastMatch.leagueUrl, height: 50),
-                        SizedBox(width: 5),
-                        Text('League: ${pastMatch.league}'),
-                      ],
+                    Image.network(pastMatch.leagueUrl, height: 50),
+                    SizedBox(width: 5),
+                    Text('League: ${pastMatch.league}'),
+                  ],
+                ),
+                // Nested ExpansionTile for additional information
+                ExpansionTile(
+                  title: Text('More Info'),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text('Additional information about the match can go here.'),
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
-          );
-        },
-      );
-    }
+          ),
+        );
+      },
+    );
   }
+}
+
 
   Widget buildTeams() {
     if (_filteredTeams.isEmpty) {
@@ -339,4 +346,3 @@ class _MyStatistikState extends State<MyStatistik> {
     }
   }
 }
-
