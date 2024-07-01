@@ -8,6 +8,7 @@ class RegistrationForm extends StatefulWidget {
 }
 
 class _RegistrationFormState extends State<RegistrationForm> {
+  String ip_Adress = "192.168.0.34";
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
@@ -30,7 +31,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
       };
 
       final response = await http.post(
-        Uri.parse('http://192.168.0.44:3000/user'),
+        Uri.parse('http://$ip_Adress:3000/user'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );

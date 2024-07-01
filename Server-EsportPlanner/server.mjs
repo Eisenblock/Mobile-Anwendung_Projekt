@@ -22,7 +22,10 @@ const userSchema = new mongoose.Schema( {
   name: String,
   selectedGames: [String], // Spiele, die der Benutzer ausgewählt hat
   selectedLeagues: [String], // Ligen, die der Benutzer ausgewählt hat
-  selectedTeams: [String], // Teams, die der Benutzer ausgewählt hat
+  selectedLeagues_lol: [String], // Ligen, die der Benutzer ausgewählt hat
+  selectedLeagues_valo: [String], // Ligen, die der Benutzer ausgewählt hat
+  selectedTeams_lol: [String], // Teams, die der Benutzer ausgewählt hat
+  selectedTeams_valo: [String], // Teams, die der Benutzer ausgewählt hat
   username: String,
   password : String
 });
@@ -31,11 +34,11 @@ const User = mongoose.model('user', userSchema);
 app.put('/user/:id', async (req, res) => {
   try {
     const userId = req.params.id;
-    const { selectedGames , selectedLeagues} = req.body;
+    const { selectedGames , selectedLeagues_lol,selectedLeagues_valo,selectedTeams_lol,selectedTeams_valo} = req.body;
 
     const user = await User.findByIdAndUpdate(
       userId,
-      { selectedGames: selectedGames,selectedLeagues: selectedLeagues  },
+      { selectedGames: selectedGames,selectedLeagues_lol: selectedLeagues_lol,selectedLeagues_valo: selectedLeagues_valo,selectedTeams_lol: selectedTeams_lol,selectedTeams_valo: selectedTeams_valo},
       { new: true }
     );
     console.log(user);
@@ -75,6 +78,7 @@ app.get('/user', async (req, res) => {
       _id: user._id,
       name: user.name,
       selectedGames: user.selectedGames,
+      selectedLeagues: user.selectedLeagues,
       username: user.username,
       password: user.password,
       // Weitere Felder nach Bedarf hinzufügen
@@ -99,6 +103,10 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
     // Spiele, die der Benutzer ausgewählt hat
     const selectedGames = user.selectedGames;
     const selectedLeagues = user.selectedLeagues;
+    const selectedLeagues_lol = user.selectedLeagues_lol;
+    const selectedLeagues_valo = user.selectedLeagues_valo;
+    const selectedTeams_lol = user.selectedTeams_lol;
+    const selectedTeams_valo = user.selectedTeams_valo;
     const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
 
     const combinedData = {};
@@ -115,7 +123,7 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
       const data = await response.json();
       
       // Extrahiere nur die gewünschten Informationen aus den abgerufenen Daten
-      const filteredData = data.map(match => ({
+      var filteredData = data.map(match => ({
         name: match.name,
         opponents: match.opponents,  
         begin_at: match.begin_at,
@@ -126,20 +134,47 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
         // Füge weitere Felder hinzu, die du senden möchtest
       }));
 
-      // Filtere die Spiele nach den ausgewählten Ligen des Benutzers
-      console.log(selectedLeagues.length);
+      // Filtern der Daten nach den ausgewählten Ligen
+
+      if(game == 'lol'&& selectedLeagues_lol.length > 0){
+    
+        filteredData = filteredData.filter(match => selectedLeagues_lol.includes(match.league));
+        console.log(filteredData);
+      }else{
+        console.log("Keine Liga ausgewählt");
+        console.log(filteredData);
+      }
+      
+      if(game == 'valorant'&& selectedLeagues_valo.length > 0){
+        filteredData = filteredData.filter(match => selectedLeagues_valo.includes(match.league));
+        console.log(filteredData);
+      }else{
+        console.log("Keine Liga ausgewählt");
+        console.log(filteredData);
+      }
+
+
+      // Filtern der Daten nach den ausgewählten Teams
+
+     /* if(game == 'lol'&& selectedTeams_lol.length > 1){
+        const lolfilteredData = filteredData.filter(match => match.opponents[0].opponent.name == selectedTeams_lol || match.opponents[1].opponent.name == selectedTeams_lol);
+        console.log(lolfilteredData);
+      }else{
+        console.log("Kein Team ausgewählt");
+        
+      }*/
+
+      if(game == 'valorant'&& selectedTeams_valo.length > 0){
+        filteredData = filteredData.filter(match => match.opponents[0].opponent.name == selectedTeams_valo || match.opponents[1].opponent.name == selectedTeams_valo);
+      }else{
+        console.log("Kein Team ausgewählt");
+      }
 
       
 
-      // Speichern der gefilterten und sortierten Daten für jedes Spiel separat
-      if(selectedLeagues.length > 0)
-      {
-      combinedData[game] = filteredData.filter(match => selectedLeagues.includes(match.league));
-      }
-      else
-      {
+     
         combinedData[game] = filteredData;
-      }
+     
 
     }
 
@@ -174,10 +209,9 @@ app.get('/allGames/leagues', async (req, res) => {
     const dataVALO = await responseVALO.json();
 
     // Filtern und Mappen der Daten für League of Legends
-    const filteredDataLOL = dataLOL
-      .filter(league => league.series[0].season !== null)
-      .map(league => ({
-        name: league.name
+    const filteredDataLOL = dataLOL.map(league => ({
+        name: league.name,
+        season: league.series[0].season 
       }));
 
     // Filtern und Mappen der Daten für Valorant
@@ -223,19 +257,17 @@ app.get('/allGames/teams', async (req, res) => {
     const dataVALO = await responseVALO.json();
 
     // Filtern und Mappen der Daten für League of Legends
-    const filteredDataLOL = dataLOL
-      .filter(team => team.players.length >0)
-      .map(team => ({
+    const filteredDataLOL = dataLOL.map(team => ({
         videogame: "lol",
-        name: team.name
+        name: team.name,
+        players : team.players,
       }));
 
     // Filtern und Mappen der Daten für Valorant
-    const filteredDataVALO = dataVALO
-      .filter(team => team.players.length >0)
-      .map(team => ({
+    const filteredDataVALO = dataVALO.map(team => ({
         videogame: "valorant",
-        name: team.name
+        name: team.name,
+        players : team.players,
       }));
 
     // Kombinieren der Daten
@@ -259,16 +291,30 @@ app.get('/lol/teams', async (req, res) => {
   const response = await fetch(`${apiUrl}?token=${apiKey}`);
   const data = await response.json();
 
-  const filteredData = data
-    .filter(team => team.players[0]  != null) // Filtern der Ligen, bei denen season nicht null ist
+  const filteredData = data // Filtern der Ligen, bei denen season nicht null ist
     .map(team => ({
       name: team.name,
-      //players : team.players,
+      players : team.players,
     }));
 
 
 
   res.json({teams : filteredData});
+});
+
+app.get('/teams', async (req, res) => {
+  const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
+  const apiUrl = 'https://api.pandascore.co/matches/past';
+  const response = await fetch(`${apiUrl}?token=${apiKey}`);
+  const data = await response.json();
+
+  const filteredData = data // Filtern der Ligen, bei denen season nicht null ist
+    .map(match => ({
+      team: match.opponents[0].opponent.name,
+      team2: match.opponents[1].opponent.name,
+    }));
+
+    res.json({teams : filteredData});
 });
 
 app.get('/past-matches', async (req, res) => {
@@ -291,13 +337,14 @@ app.get('/past-matches', async (req, res) => {
       
       // Extrahiere nur die gewünschten Informationen aus den abgerufenen Daten
       const filteredData = data.map(match => ({
+        videogame: game,
         name: match.name,
         opponents: match.opponents,  
         begin_at: match.begin_at,
         league: match.league.name,
         leagueurl: match.league.image_url,
         serie: match.serie.name,
-        name: match.videogame.name,
+        results: match.results,
         // Füge weitere Felder hinzu, die du senden möchtest
       }));
       
@@ -314,6 +361,7 @@ app.get('/past-matches', async (req, res) => {
     res.status(500).send('Interner Serverfehler');
   }
 });
+
 // Starten des Servers
 app.listen(port, () => {
   console.log(`Server läuft auf http://localhost:${port}`);

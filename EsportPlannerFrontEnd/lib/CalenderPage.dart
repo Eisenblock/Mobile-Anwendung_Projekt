@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_ma/Event_Calender.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'TeamInfo.dart';
 import'Loader.dart';
@@ -18,15 +19,7 @@ class _CalendarPageState extends State<CalendarPage> {
   Loader loader = Loader();
   List<TeamInfo> teamInfos = [];
   String id = '';
-  final Map<DateTime, List<String>> events = {
-    DateTime.now(): ['Meeting at 10 AM', 'Lunch at 12 PM'],
-    DateTime.now().add(Duration(days: 1)): ['Gym at 6 AM'],
-    DateTime.now().add(Duration(days: 2)): ['Project deadline'],
-    DateTime.now().add(Duration(days: 3)): ['Doctor appointment at 5 PM'],
-    DateTime.now().add(Duration(days: 4)): ['Team meeting at 2 PM'],
-    DateTime.now().add(Duration(days: 5)): ['Birthday party at 7 PM'],
-    DateTime.now().add(Duration(days: 6)): ['Grocery shopping at 3 PM'],
-  };
+  final Map<DateTime, List<String>> events = {};
 
   @override
   void initState() {
@@ -35,16 +28,30 @@ class _CalendarPageState extends State<CalendarPage> {
     GetGameInfo();
   }
 
- Future<void> GetGameInfo() async {
-  try {
+DateTime? firstDate;
+DateTime? lastDate;
+
+Future<void> GetGameInfo() async {
+  
     id = Provider.of<UserModel>(context, listen: false).id;
     // Verwende die Beispieldaten
     List<TeamInfo> _teamInfos = await loader.fetchTeamInfosLoL(id);
 
+    // Initialisiere firstDate und lastDate mit extremen Werten
+    DateTime earliestDate = DateTime.now();
+    DateTime latestDate = DateTime(1900);
+
     // Durchlaufe die Teaminfos und aktualisiere die events-Map
     _teamInfos.forEach((teamInfo) {
       DateTime eventDate = DateTime.parse(teamInfo.date);
-      String formattedEventDate = _formatDate(eventDate);
+
+      // Update earliestDate und latestDate
+      if (eventDate.isBefore(earliestDate)) {
+        earliestDate = eventDate;
+      }
+      if (eventDate.isAfter(latestDate)) {
+        latestDate = eventDate;
+      }
 
       if (events.containsKey(eventDate)) {
         // Füge den Namen des Teams zu den vorhandenen Events hinzu
@@ -54,93 +61,234 @@ class _CalendarPageState extends State<CalendarPage> {
         events[eventDate] = [teamInfo.series];
       }
     });
+
+    // Setze firstDate und lastDate
+    firstDate = earliestDate;
+    lastDate = latestDate;
+
     print(events);
 
     setState(() {
       teamInfos = _teamInfos;
     });
-  } catch (error) {
-    print('Fehler beim Laden der Teaminfos: $error');
-    // Behandle den Fehler entsprechend
-  }
+  
 }
-
 
 @override
 Widget build(BuildContext context) {
-  // Erstelle eine Liste aller Daten, an denen Ereignisse stattfinden
-  List<DateTime> eventDates = [];
-  teamInfos.forEach((teamInfo) {
-    DateTime eventDate = DateTime.parse(teamInfo.date);
-    if (!eventDates.contains(eventDate)) {
-      eventDates.add(eventDate);
-    }
-  });
+  if (firstDate == null || lastDate == null) {
+    return Center(child: CircularProgressIndicator());
+  }
+
+  List<DateTime> allDates = [];
+  for (DateTime date = firstDate!;
+      date.isBefore(lastDate!) || date.isAtSameMomentAs(lastDate!);
+      date = date.add(Duration(days: 1))) {
+    allDates.add(date);
+  }
 
   return Scaffold(
     appBar: AppBar(
       title: Text('Week View'),
     ),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: eventDates.map((date) {
-          String formattedDate = _formatDate(date);
-          List<String> dayEvents = [];
-
-          // Füge die Namen der Teams hinzu, die an diesem Tag spielen
-          teamInfos.forEach((teamInfo) {
-            DateTime eventDate = DateTime.parse(teamInfo.date);
-            if (eventDate == date) {
-              dayEvents.add(teamInfo.opponent1 + ' vs ' + teamInfo.opponent2);
-              dayEvents.add(teamInfo.league);
-            }
-          });
-
-          return Column(
-            children: [
-              Container(
-                width: 150,
-                height: 50,
-                margin: EdgeInsets.all(4.0),
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Center(
-                  child: Text(
-                    formattedDate,
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              Container(
-                width: 150,
-                height: 200,
-                padding: EdgeInsets.all(8.0),
-                margin: EdgeInsets.only(bottom: 4.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: dayEvents.map((event) {
-                    return Text(
-                      event,
-                      style: TextStyle(color: Colors.black, fontSize: 10),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          );
-        }).toList(),
+    body: SingleChildScrollView(
+      child: Center(
+        child: _buildEventWrap(allDates),
       ),
     ),
   );
 }
+
+Widget _buildEventWrap(List<DateTime> allDates) {
+  return Wrap(
+    spacing: 16.0,
+    runSpacing: 16.0,
+    alignment: WrapAlignment.center,
+    children: allDates.map((date) {
+      return _buildEventColumn(date);
+    }).toList(),
+  );
+}
+
+Widget _buildEventColumn(DateTime date) {
+  String formattedDate = _formatDate(date);
+  List<Event_Calender> dayEvents = [];
+
+  teamInfos.forEach((teamInfo) {
+    DateTime eventDate = DateTime.parse(teamInfo.date);
+    if (eventDate == date) {
+      dayEvents.add(Event_Calender(
+        title: "",
+        opponent1: teamInfo.opponent1,
+        opponent2: teamInfo.opponent2,
+        opponent1url: teamInfo.opponent1url,
+        opponent2url: teamInfo.opponent2url,
+        imageUrl: teamInfo.leagueurl,
+        time: teamInfo.time,
+      ));
+    }
+  });
+
+  return Column(
+    children: [
+      _buildDateBox(formattedDate),
+      _buildEventList(dayEvents),
+    ],
+  );
+}
+
+Widget _buildDateBox(String formattedDate) {
+  return Container(
+    width: 380,
+    height: 30,
+    margin: EdgeInsets.all(4.0),
+    decoration: BoxDecoration(
+      color: Colors.blue,
+      borderRadius: BorderRadius.circular(8.0),
+    ),
+    child: Center(
+      child: Text(
+        formattedDate,
+        style: TextStyle(color: Colors.white, fontSize: 14),
+        textAlign: TextAlign.center,
+      ),
+    ),
+  );
+}
+
+Widget _buildEventList(List<Event_Calender> dayEvents) {
+  return Container(
+    width: 380,
+    padding: EdgeInsets.all(8.0),
+    margin: EdgeInsets.only(bottom: 4.0),
+    decoration: BoxDecoration(
+      color: Colors.grey[200],
+      borderRadius: BorderRadius.circular(8.0),
+    ),
+    constraints: BoxConstraints(
+      minHeight: 200, // Mindesthöhe
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: dayEvents.map((event) {
+        return _buildEventBox(event);
+      }).toList(),
+    ),
+  );
+}
+
+Widget _buildEventBox(Event_Calender event) {
+  return Container(
+    margin: EdgeInsets.symmetric(vertical: 8.0),
+    padding: EdgeInsets.all(8.0),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.black),
+      borderRadius: BorderRadius.circular(8.0),
+    ),
+    child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              children: [
+                if (event.opponent1url != 'keine Daten')
+                  Image.network(
+                    event.opponent1url,
+                    height: 40,
+                    width: 40,
+                    fit: BoxFit.cover,
+                  )
+                else
+                  Container(
+                    height: 40,
+                    width: 40,
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Unknown',
+                        style: TextStyle(color: Colors.black, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 4),
+                Text(
+                  event.opponent1,
+                  style: TextStyle(color: Colors.black, fontSize: 12),
+                ),
+              ],
+            ),
+            SizedBox(width: 4),
+            Text(
+              'vs',
+              style: TextStyle(color: Colors.black, fontSize: 12),
+            ),
+            SizedBox(width: 4),
+            Column(
+              children: [
+                if (event.opponent2url != 'keine Daten')
+                  Image.network(
+                    event.opponent2url,
+                    height: 40,
+                    width: 40,
+                    fit: BoxFit.cover,
+                  )
+                else
+                  Container(
+                    height: 40,
+                    width: 40,
+                    padding: EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '?',
+                        style: TextStyle(color: Colors.black, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 4),
+                Text(
+                  event.opponent2,
+                  style: TextStyle(color: Colors.black, fontSize: 12),
+                ),
+              ],
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.access_time, size: 16.0),
+            SizedBox(width: 4.0),
+            Text(
+              '${event.time}',
+              style: TextStyle(color: Colors.black, fontSize: 12),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+
+
+
+
+
+
+
 
   String _formatDate(DateTime date) {
     List<String> weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

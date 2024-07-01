@@ -20,6 +20,7 @@ class _AdvanceSettingPageState extends State<AdvanceSettingPage> {
   String selectedTeam = '';
    List<LoL_Leagues> filteredLeagues = [];
   List<LoL_Team> teams = [];
+  List<LoL_Team> filteredTeams = [];
   Loader loader = Loader();
   List<LoL_Leagues> allleagues = [];
   List<bool> selectedOptions_leagues = [];
@@ -42,12 +43,15 @@ class _AdvanceSettingPageState extends State<AdvanceSettingPage> {
 
 Future<void> fetchAllOptions() async {
     List<LoL_Leagues> _leagues = [];
+    List<LoL_Team> _teams = [];
     
     _leagues = await loader.fetchAllLeagues();
+    _teams = await loader.fetchAllTeamsLoL();
     
    
     setState(() {
       allleagues = _leagues;
+      teams = _teams;
       
     });
     print(allleagues[0].name);
@@ -66,6 +70,17 @@ Future<void> fetchAllOptionss() async {
     });
     print(teams[0].name + 'teams');
 }
+
+List<LoL_Team> getFilteredTeams() {
+    return teams.where((team) {
+      if (lolTrue) {
+        return team.videogame == 'lol';
+      } else if (valTrue) {
+        return team.videogame == 'valorant';
+      }
+      return false;
+    }).toList();
+  }
     
 List<LoL_Leagues> getFilteredLeagues() {
     return allleagues.where((league) {
@@ -84,6 +99,7 @@ void ChangeSettingsLoL() {
     lolTrue = true;
     valTrue = false;
     filteredLeagues = getFilteredLeagues();
+    filteredTeams = getFilteredTeams();
  });
   print("lol" + allleagues[0].videoGame);
 }
@@ -94,6 +110,7 @@ void ChangeSettingsValo() {
     lolTrue = false;
     valTrue = true;
     filteredLeagues = getFilteredLeagues();
+    filteredTeams = getFilteredTeams();
   });
    print("valo" + allleagues[0].videoGame);
 }
@@ -102,27 +119,44 @@ void ChangeSettingsValo() {
 
  Future<void> saveSettingsToBackend(List<String> selectedTeams, List<String> selectedLeagues) async {
     final id = Provider.of<UserModel>(context, listen: false).id;
-    final url = 'http://192.168.0.44:3000/user/' + id + '' ; // Ersetze dies durch die URL deines Backends
+    final url = 'http://192.168.0.34:3000/user/$id' ; // Ersetze dies durch die URL deines Backends
+    var response;
 
-    final response = await http.put(
+    print(lolTrue);
+
+    if(lolTrue){
+      response = await http.put(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',      },
       body: jsonEncode(<String, dynamic>{
         
-        'selectedTeams': selectedTeams,
-        'selectedLeagues': selectedLeagues,
+        'selectedTeams_lol': selectedTeams,
+        'selectedLeagues_lol': selectedLeagues,
         
-      }),
-    );
-
-    if (response.statusCode == 201) {
-      // Erfolgreiche Anfrage
-      print('User data saved successfully');
-    } else {
-      // Fehler bei der Anfrage
-      throw Exception('Failed to save user data');
+        }),  
+      
+      );
     }
+
+    if(valTrue){
+      response = await http.put(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',      },
+      body: jsonEncode(<String, dynamic>{
+        
+        'selectedTeams_valo': selectedTeams,
+        'selectedLeagues_valo': selectedLeagues,
+        
+        }),  
+      
+      );
+    }
+
+    
+
+   
   }
 
   @override
@@ -200,14 +234,14 @@ void ChangeSettingsValo() {
             ListView.builder(
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemCount: filteredLeagues.length,
+              itemCount: filteredTeams.length,
               itemBuilder: (context, index) {
                 return CheckboxListTile(
-                  title: Text(filteredLeagues[index].name),
-                  value: selectedOptions_leagues[index], // Hier könnte eine Korrektur notwendig sein, wenn selectedOptions nicht für die Ligen verwendet werden soll
+                  title: Text(filteredTeams[index].name),
+                  value: selectedOptions_teams[index], // Hier könnte eine Korrektur notwendig sein, wenn selectedOptions nicht für die Ligen verwendet werden soll
                   onChanged: (bool? value) {
                     setState(() {
-                      selectedOptions_leagues[index] = value!;
+                      selectedOptions_teams[index] = value!;
                     });
                   },
                 );

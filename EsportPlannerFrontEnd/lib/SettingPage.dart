@@ -23,6 +23,7 @@ class _SettingsPageState extends State<SettingsPage> {
   List<bool> selectedOptions_leagues = [];
   List<bool> selectedOptions_teams = [];
   String id = '';
+  String ip_Adress = "192.168.0.34";
 
   initState() {
     super.initState();
@@ -58,7 +59,7 @@ Future<void> fetchTeams() async {
 
   Future<void> saveSettingsToBackend(List<String> selectedGames, List<String> selectedLeagues) async {
     final id = Provider.of<UserModel>(context, listen: false).id;
-    final url = 'http://192.168.0.44:3000/user/' + id + '' ; // Ersetze dies durch die URL deines Backends
+    final url = 'http://$ip_Adress:3000/user/$id' ; // Ersetze dies durch die URL deines Backends
 
     final response = await http.put(
       Uri.parse(url),
