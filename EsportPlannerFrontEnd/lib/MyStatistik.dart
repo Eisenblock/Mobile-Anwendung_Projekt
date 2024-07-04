@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ma/past_matches.dart'; // Import your PastMatches model
 import 'package:provider/provider.dart';
@@ -38,6 +40,8 @@ class _MyStatistikState extends State<MyStatistik> {
     try {
       final String userId = Provider.of<UserModel>(context, listen: false).id;
       List<PastMatches> matches = await _loader.fetchPastMatches(userId);
+      print("----------------------------------------------");
+      print(matches);
 
       // Filter matches to only include lol or valorant
       matches = matches.where((match) => match.videogame.toLowerCase() == 'lol' || match.videogame.toLowerCase() == 'valorant').toList();
@@ -51,6 +55,27 @@ class _MyStatistikState extends State<MyStatistik> {
       print('Error fetching matches: $error');
       // Handle error as needed
     }
+  }
+
+    Future<void> fetchAllTeamsLoL() async {
+    try {
+      List<LoL_Team> teams = await _loader.fetchAllTeamsLoL();
+      showPastMatches = false;
+      setState(() {
+        _teams = teams;
+        _filteredTeams = teams;
+      });
+    } catch (error) {
+      print('Error fetching teams: $error');
+      // Handle error as needed
+    }
+  }
+
+  Future<void> changeBuild_pastMatches() async {
+   bool _showPastMatches = true;
+    setState(() {
+      showPastMatches = _showPastMatches;
+    });
   }
 
   void _filterResults() {
@@ -202,7 +227,7 @@ class _MyStatistikState extends State<MyStatistik> {
                   IconButton(
                     icon: Icon(Icons.group),
                     onPressed: () {
-                      _filterByGame('lol');
+                      fetchAllTeamsLoL();
                     },
                   ),
                   Text('Teams', style: TextStyle(fontSize: 12)),
@@ -216,7 +241,7 @@ class _MyStatistikState extends State<MyStatistik> {
                   IconButton(
                     icon: Icon(Icons.gamepad),
                     onPressed: () {
-                      _filterByGame('valorant');
+                      changeBuild_pastMatches();
                     },
                   ),
                   Text('Spiele', style: TextStyle(fontSize: 12)),
