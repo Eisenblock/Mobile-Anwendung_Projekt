@@ -12,13 +12,14 @@ class PastMatches{
   final String opponents;
   final String opponent1url; 
   final String opponent2url;
+  final String videogame;
   String winner1='';
   String winner2 = '';
   final String winner;
 
 
 
-PastMatches(this.name,this.time,this.date,this.begin_at,this.league,this.leagueUrl,this.opponent1,this.opponent2,this.serie,this.opponent1url,this.opponent2url,this.opponents,this.winner1,this.winner2,this.winner);
+PastMatches(this.name,this.time,this.date,this.begin_at,this.league,this.leagueUrl,this.opponent1,this.opponent2,this.serie,this.opponent1url,this.opponent2url,this.videogame,this.opponents,this.winner1,this.winner2,this.winner);
 
 
 }

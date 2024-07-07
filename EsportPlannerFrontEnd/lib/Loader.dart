@@ -255,6 +255,7 @@ Future<List<PastMatches>> fetchPastMatches(String id) async {
         String opponent2 = 'keine Daten';
         String opponent1url = 'keine Daten';
         String opponent2url = 'keine Daten';
+        String videogame = 'lol';
         String winner1 = 'keine Daten';
         String winner2 = 'keine Daten';
 
@@ -282,6 +283,7 @@ Future<List<PastMatches>> fetchPastMatches(String id) async {
           serie,
           opponent1url,
           opponent2url,
+          videogame,
           opponents.toString(), // Storing opponents as a string
           winner1,
           winner2,

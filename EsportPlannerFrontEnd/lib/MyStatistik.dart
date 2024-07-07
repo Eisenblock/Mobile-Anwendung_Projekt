@@ -1,11 +1,12 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ma/past_matches.dart'; // Import your PastMatches model
 import 'package:provider/provider.dart';
 import 'Loader.dart';
 import 'user_model.dart';
 import 'LoL_Teams.dart';
-import 'MyHomePage.dart';
- // Import your HomePage
+import 'MyHomePage.dart'; // Import your HomePage
 
 class MyStatistik extends StatefulWidget {
   final String title;
@@ -26,32 +27,40 @@ class _MyStatistikState extends State<MyStatistik> {
   bool showTeams = false;
   TextEditingController _searchController = TextEditingController();
   LoL_Team? _selectedTeam; // Track the selected team
+  String? _selectedGame; // Track the selected game (lol or valorant)
 
   @override
   void initState() {
     super.initState();
-    fetchPastMatches();
+    fetchMatches(); // Fetch both LOL and Valorant matches initially
     _searchController.addListener(_filterResults);
   }
 
-  Future<void> fetchPastMatches() async {
+  Future<void> fetchMatches() async {
     try {
       final String userId = Provider.of<UserModel>(context, listen: false).id;
-      List<PastMatches> pastMatches = await _loader.fetchPastMatches(userId);
+      List<PastMatches> matches = await _loader.fetchPastMatches(userId);
+      print("----------------------------------------------");
+      print(matches);
+
+      // Filter matches to only include lol or valorant
+      matches = matches.where((match) => match.videogame.toLowerCase() == 'lol' || match.videogame.toLowerCase() == 'valorant').toList();
+
       setState(() {
-        _pastmatches = pastMatches;
-        _filteredPastMatches = pastMatches;
+        _pastmatches = matches;
+        _filteredPastMatches = matches;
       });
-      print('Fetched ${_pastmatches.length} past matches');
+      print('Fetched ${_pastmatches.length} matches');
     } catch (error) {
-      print('Error fetching past matches: $error');
+      print('Error fetching matches: $error');
       // Handle error as needed
     }
   }
 
-  Future<void> fetchAllTeamsLoL() async {
+    Future<void> fetchAllTeamsLoL() async {
     try {
       List<LoL_Team> teams = await _loader.fetchAllTeamsLoL();
+      showPastMatches = false;
       setState(() {
         _teams = teams;
         _filteredTeams = teams;
@@ -60,6 +69,13 @@ class _MyStatistikState extends State<MyStatistik> {
       print('Error fetching teams: $error');
       // Handle error as needed
     }
+  }
+
+  Future<void> changeBuild_pastMatches() async {
+   bool _showPastMatches = true;
+    setState(() {
+      showPastMatches = _showPastMatches;
+    });
   }
 
   void _filterResults() {
@@ -75,10 +91,11 @@ class _MyStatistikState extends State<MyStatistik> {
     } else if (showPastMatches) {
       setState(() {
         _filteredPastMatches = _pastmatches.where((match) {
-          return match.opponent1.toLowerCase().contains(query) ||
-              match.opponent2.toLowerCase().contains(query) ||
-              match.name.toLowerCase().contains(query) ||
-              match.league.toLowerCase().contains(query);
+          return match.videogame.toLowerCase() == _selectedGame &&
+              (match.opponent1.toLowerCase().contains(query) ||
+                  match.opponent2.toLowerCase().contains(query) ||
+                  match.name.toLowerCase().contains(query) ||
+                  match.league.toLowerCase().contains(query));
         }).toList();
       });
     }
@@ -88,7 +105,7 @@ class _MyStatistikState extends State<MyStatistik> {
     _searchController.clear();
     setState(() {
       _filteredTeams = _teams;
-      _filteredPastMatches = _pastmatches;
+      _filteredPastMatches = _pastmatches.where((match) => match.videogame.toLowerCase() == _selectedGame).toList();
     });
   }
 
@@ -119,14 +136,10 @@ class _MyStatistikState extends State<MyStatistik> {
 
   void _filterByGame(String game) {
     setState(() {
-      if (game == 'lol') {
-        showPastMatches = true;
-        showTeams = false;
-      } else if (game == 'valorant') {
-        fetchAllTeamsLoL(); // Adjust if you have a specific fetch function for Valorant teams
-        showTeams = true;
-        showPastMatches = false;
-      }
+      _selectedGame = game;
+      showTeams = game != 'lol'; // Show teams view for Valorant
+      showPastMatches = game == 'lol'; // Show past matches view for LOL
+      _filteredPastMatches = _pastmatches.where((match) => match.videogame.toLowerCase() == game).toList();
     });
   }
 
@@ -139,6 +152,33 @@ class _MyStatistikState extends State<MyStatistik> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _filterByGame('lol');
+                },
+                child: Image.asset(
+                  'assets/lol_logo.png',
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  _filterByGame('valorant');
+                },
+                child: Image.asset(
+                  'assets/valorant_logo.png',
+                  width: 50,
+                  height: 50,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -180,30 +220,33 @@ class _MyStatistikState extends State<MyStatistik> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            IconButton(
-              icon: Icon(Icons.home),
-              onPressed: () {
-                _navigateToHomePage(context);
-              },
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.group),
+                    onPressed: () {
+                      fetchAllTeamsLoL();
+                    },
+                  ),
+                  Text('Teams', style: TextStyle(fontSize: 12)),
+                ],
+              ),
             ),
-            IconButton(
-              icon: Icon(Icons.group),
-              onPressed: () {
-                fetchAllTeamsLoL();
-                setState(() {
-                  showTeams = true;
-                  showPastMatches = false;
-                });
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.gamepad),
-              onPressed: () {
-                setState(() {
-                  showPastMatches = true;
-                  showTeams = false;
-                });
-              },
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.gamepad),
+                    onPressed: () {
+                      changeBuild_pastMatches();
+                    },
+                  ),
+                  Text('Spiele', style: TextStyle(fontSize: 12)),
+                ],
+              ),
             ),
           ],
         ),
@@ -211,85 +254,123 @@ class _MyStatistikState extends State<MyStatistik> {
     );
   }
 
- Widget buildPastMatches() {
-  if (_filteredPastMatches.isEmpty) {
-    return Center(child: Text('No past matches available'));
-  } else {
-    return ListView.builder(
-      itemCount: _filteredPastMatches.length,
-      itemBuilder: (context, index) {
-        final pastMatch = _filteredPastMatches[index];
-        return Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text(
-                    '${pastMatch.opponent1} vs ${pastMatch.opponent2}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+  Widget buildPastMatches() {
+    if (_filteredPastMatches.isEmpty) {
+      return Center(child: Text('No past matches available'));
+    } else {
+      return ListView.builder(
+        itemCount: _filteredPastMatches.length,
+        itemBuilder: (context, index) {
+          final pastMatch = _filteredPastMatches[index];
+
+          // Convert winner1 and winner2 from String to int
+          int winner1Points = int.parse(pastMatch.winner1);
+          int winner2Points = int.parse(pastMatch.winner2);
+
+          // Determine the winner based on points
+          bool isWinner1 = winner1Points > winner2Points;
+          bool isWinner2 = winner2Points > winner1Points;
+
+          return Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    title: Text(
+                      '${pastMatch.opponent1} vs ${pastMatch.opponent2}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text('Date: ${pastMatch.time} Uhr | Time: ${pastMatch.date}'),
                   ),
-                  subtitle: Text('Date: ${pastMatch.time} | Time: ${pastMatch.date}'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        if (pastMatch.opponent1url != 'keine Daten')
+                          Column(
+                            children: [
+                              Container(
+                                width: 50, // Fixed width for the logo
+                                height: 50, // Fixed height for the logo
+                                child: Stack(
+                                  children: [
+                                    Image.network(pastMatch.opponent1url, fit: BoxFit.cover),
+                                    if (isWinner1)
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Icon(Icons.star, color: Colors.yellow, size: 20),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                '$winner1Points ',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        Text('vs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        if (pastMatch.opponent2url != 'keine Daten')
+                          Column(
+                            children: [
+                              Container(
+                                width: 50, // Fixed width for the logo
+                                height: 50, // Fixed height for the logo
+                                child: Stack(
+                                  children: [
+                                    Image.network(pastMatch.opponent2url, fit: BoxFit.cover),
+                                    if (isWinner2)
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Icon(Icons.star, color: Colors.yellow, size: 20),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                '$winner2Points',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                  // Nested ExpansionTile for additional information
+                  ExpansionTile(
+                    title: Text('More Info'),
                     children: [
-                      if (pastMatch.opponent1url != 'keine Daten')
-                        Column(
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.network(pastMatch.opponent1url, height: 50),
-                            SizedBox(height: 5),
-                            Text(
-                              pastMatch.winner1,
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                            Container(
+                              width: 50, // Fixed width for the logo
+                              height: 50, // Fixed height for the logo
+                              child: Image.network(pastMatch.leagueUrl, fit: BoxFit.cover),
                             ),
+                            SizedBox(width: 5),
+                            Text('League: ${pastMatch.league}'),
                           ],
                         ),
-                      Text('vs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      if (pastMatch.opponent2url != 'keine Daten')
-                        Column(
-                          children: [
-                            Image.network(pastMatch.opponent2url, height: 50),
-                            SizedBox(height: 5),
-                            Text(
-                              pastMatch.winner2,
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
+                      ),
                     ],
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.network(pastMatch.leagueUrl, height: 50),
-                    SizedBox(width: 5),
-                    Text('League: ${pastMatch.league}'),
-                  ],
-                ),
-                // Nested ExpansionTile for additional information
-                ExpansionTile(
-                  title: Text('More Info'),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text('Additional information about the match can go here.'),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    }
   }
-}
-
-
 
   Widget buildTeams() {
     if (_filteredTeams.isEmpty) {
@@ -330,6 +411,7 @@ class _MyStatistikState extends State<MyStatistik> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+<<<<<<< HEAD
                              if (member.image_url != 'Unknown')
                               Image.network(
                                 member.image_url,
@@ -358,6 +440,18 @@ class _MyStatistikState extends State<MyStatistik> {
                                   ),
                                 ),
                               ), // Placeholder image if image_url is empty
+=======
+                              Container(
+                                width: 50, // Fixed width for the logo
+                                height: 50, // Fixed height for the logo
+                                child: member.image_url.isNotEmpty
+                                    ? Image.network(member.image_url, fit: BoxFit.cover)
+                                    : CircleAvatar(
+                                        child: Icon(Icons.person),
+                                        radius: 25,
+                                      ),
+                              ),
+>>>>>>> 9b3add9c0c113a812afe9c210aa87f134aff555e
                               SizedBox(height: 8),
                               Text('${member.firstName} ${member.lastName}'),
                             ],
