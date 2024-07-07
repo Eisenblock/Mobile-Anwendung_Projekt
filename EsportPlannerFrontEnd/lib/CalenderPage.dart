@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ma/Event_Calender.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -20,6 +22,7 @@ class _CalendarPageState extends State<CalendarPage> {
   List<TeamInfo> teamInfos = [];
   String id = '';
   final Map<DateTime, List<String>> events = {};
+  Map<DateTime, bool> eventsExistence = {};
 
   @override
   void initState() {
@@ -28,8 +31,8 @@ class _CalendarPageState extends State<CalendarPage> {
     GetGameInfo();
   }
 
-DateTime? firstDate;
-DateTime? lastDate;
+ DateTime firstDate = DateTime.now(); // Frühestes Datum
+  DateTime lastDate = DateTime(1900); // Spätestes Datum
 
 Future<void> GetGameInfo() async {
   
@@ -60,11 +63,20 @@ Future<void> GetGameInfo() async {
         // Erstelle eine neue Liste mit dem Namen des Teams unter diesem Datum
         events[eventDate] = [teamInfo.series];
       }
+
+       eventsExistence[eventDate] = true;
     });
 
     // Setze firstDate und lastDate
     firstDate = earliestDate;
     lastDate = latestDate;
+
+     for (DateTime date = firstDate; date.isBefore(lastDate); date = date.add(Duration(days: 1))) {
+      if (!eventsExistence.containsKey(date)) {
+        // Wenn es keinen Eintrag in eventsExistence für diesen Tag gibt, setze den Wert auf false
+        eventsExistence[date] = false;
+      }
+    }
 
     print(events);
 
@@ -118,13 +130,16 @@ Widget _buildEventColumn(DateTime date) {
     DateTime eventDate = DateTime.parse(teamInfo.date);
     if (eventDate == date) {
       dayEvents.add(Event_Calender(
-        title: "",
+        name: teamInfo.name,
         opponent1: teamInfo.opponent1,
         opponent2: teamInfo.opponent2,
         opponent1url: teamInfo.opponent1url,
         opponent2url: teamInfo.opponent2url,
         imageUrl: teamInfo.leagueurl,
         time: teamInfo.time,
+        date: teamInfo.date,
+        opponent1_short : teamInfo.opponent_short1,
+        opponent2_short : teamInfo.opponent_short2,
       ));
     }
   });
@@ -157,6 +172,10 @@ Widget _buildDateBox(String formattedDate) {
 }
 
 Widget _buildEventList(List<Event_Calender> dayEvents) {
+  if (dayEvents.isEmpty) {
+    return SizedBox.shrink(); // Zeige nichts an, wenn dayEvents leer ist
+  }
+
   return Container(
     width: 380,
     padding: EdgeInsets.all(8.0),
@@ -181,12 +200,14 @@ Widget _buildEventBox(Event_Calender event) {
   return Container(
     margin: EdgeInsets.symmetric(vertical: 8.0),
     padding: EdgeInsets.all(8.0),
+    width: 250,
     decoration: BoxDecoration(
       border: Border.all(color: Colors.black),
       borderRadius: BorderRadius.circular(8.0),
     ),
     child: Column(
       children: [
+        Text(event.name, style: TextStyle(color: Colors.black, fontSize: 16)),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -211,23 +232,27 @@ Widget _buildEventBox(Event_Calender event) {
                     ),
                     child: Center(
                       child: Text(
-                        'Unknown',
+                        '?',
                         style: TextStyle(color: Colors.black, fontSize: 12),
                         textAlign: TextAlign.center,
                       ),
                     ),
                   ),
                 SizedBox(height: 4),
+                if(event.opponent1 != 'keine Daten')
                 Text(
-                  event.opponent1,
+                  event.opponent1_short,
                   style: TextStyle(color: Colors.black, fontSize: 12),
                 ),
               ],
             ),
-            SizedBox(width: 4),
-            Text(
-              'vs',
-              style: TextStyle(color: Colors.black, fontSize: 12),
+            SizedBox(width: 4),   
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25.0), // Padding um den "vs" Text
+              child: Text(
+                'vs',
+                style: TextStyle(color: Colors.black, fontSize: 12),
+              ),
             ),
             SizedBox(width: 4),
             Column(
@@ -258,8 +283,9 @@ Widget _buildEventBox(Event_Calender event) {
                     ),
                   ),
                 SizedBox(height: 4),
+                if(event.opponent2 != 'keine Daten')
                 Text(
-                  event.opponent2,
+                  event.opponent2_short,
                   style: TextStyle(color: Colors.black, fontSize: 12),
                 ),
               ],
@@ -269,7 +295,7 @@ Widget _buildEventBox(Event_Calender event) {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.access_time, size: 16.0),
+            Icon(Icons.access_time, size: 16.0, color: Colors.black),
             SizedBox(width: 4.0),
             Text(
               '${event.time}',

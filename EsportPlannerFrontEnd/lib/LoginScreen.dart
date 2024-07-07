@@ -12,7 +12,7 @@ import 'MyHomePage.dart';
 
 Loader loader = Loader();
 Users users = Users('','','','');
-TeamInfo teamInfo = TeamInfo('name', '','','', '', '', '', 'league', 'series', 'leagueurl',DateTime.utc(1900), '');
+TeamInfo teamInfo = TeamInfo('name', '','','', '', '', '', 'league', 'series', 'leagueurl',DateTime.utc(1900), '', '','', '');
 MyHomePage  myHomePage = MyHomePage(title: 'Esport Planner');
 
 class LoginScreen extends StatefulWidget {

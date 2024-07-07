@@ -330,12 +330,34 @@ class _MyStatistikState extends State<MyStatistik> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              member.image_url.isNotEmpty
-                                  ? Image.network(member.image_url, height: 50)
-                                  : CircleAvatar(
-                                      child: Icon(Icons.person),
-                                      radius: 25,
-                                    ), // Placeholder image if image_url is empty
+                             if (member.image_url != 'Unknown')
+                              Image.network(
+                                member.image_url,
+                                height: 80,
+                                width: 80,
+                                fit: BoxFit.cover,
+                              )
+                            else
+                              Container(
+                                height: 80,
+                                width: 80,
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  border: Border.all(color: Colors.black),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '?',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 12,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ), // Placeholder image if image_url is empty
                               SizedBox(height: 8),
                               Text('${member.firstName} ${member.lastName}'),
                             ],

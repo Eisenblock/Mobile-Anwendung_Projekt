@@ -14,7 +14,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  List<String> settingsOptions = ['lol', 'valorant'];
+  List<String> settingsOptions = ['lol', 'valorant', 'csgo'];
   String selectedLeague = '';
   List<LoL_Team> teams = [];
   Loader loader = Loader();
@@ -72,13 +72,9 @@ Future<void> fetchTeams() async {
       }),
     );
 
-    if (response.statusCode == 201) {
-      // Erfolgreiche Anfrage
+    
       print('User data saved successfully');
-    } else {
-      // Fehler bei der Anfrage
-      throw Exception('Failed to save user data');
-    }
+    
   }
 
 @override
@@ -92,16 +88,8 @@ Widget build(BuildContext context) {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-                        SizedBox(height: 20), // Add some space between sections
-            ElevatedButton(
-              onPressed: () {
-                // Hier navigierst du zur Seite "AdvanceSettings", wenn der Button gedrückt wird
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AdvanceSettingPage()));
-              },
-              child: Text('Advanced Settings'),
-            ),
-
+          children: [                    
+           
             Text('Choose your games:'),
             ListView.builder(
               physics: NeverScrollableScrollPhysics(),
@@ -158,12 +146,10 @@ Widget build(BuildContext context) {
 
                 print(selectedLeagues);
 
-                try {
+                
                   await saveSettingsToBackend(selectedGames,selectedLeagues);
                   Navigator.pop(context);
-                } catch (e) {
-                  print('Error: $e');
-                }
+             
               },
               child: Text('Save Settings'),
             ),

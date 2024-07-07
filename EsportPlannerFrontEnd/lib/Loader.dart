@@ -51,15 +51,27 @@ String ip_Adress = "192.168.0.34";
       
       final dynamic dataLoL = combinedData['lol'];
       final dynamic dataValo = combinedData['valorant'];
+      final dynamic dataCsgo = combinedData['csgo'];
       
     if(dataLoL != null){
         for (var match in dataLoL) {
           final String name = match['name'];
-          final String timestamp = match['begin_at'];
-          final List<String> parts = timestamp.split("T");
-          final String date = parts[0];
-          final DateTime timeCalender = DateTime.parse(timestamp.split('T')[0]);
-          final String time = parts[1];
+          final String videoGame = match['videogame'];
+          String timestamp = match['begin_at'] ?? 'Unknown';
+          List<String> parts = [];
+          String date = '';
+          DateTime timeCalender = DateTime.now();
+          String time = '';
+          if(timestamp == 'Unknown'){
+            continue;
+          }
+          else
+          {
+          parts = timestamp.split("T");
+          date = parts[0];
+          timeCalender = DateTime.parse(timestamp.split('T')[0]);
+          time = parts[1];
+          }
           final String league = match['league'];
           final String leagueurl = match['leagueurl']; // Korrektur des Feldnamens
           final String series = match['serie'];
@@ -68,72 +80,136 @@ String ip_Adress = "192.168.0.34";
           String opponent2 = '';
           String opponent1url = '';
           String opponent2url = '';
+          String opponent_short1 = '';
+          String opponent_short2 = '';
 
           if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
           opponent1 = match['opponents'][0]['opponent']['name'];
           opponent2 = match['opponents'][1]['opponent']['name'];
-          opponent1url = match['opponents'][0]['opponent']['image_url'];
+          opponent_short1 = match['opponents'][0]['opponent']['acronym']?? "keine Daten";
+          opponent_short2 = match['opponents'][1]['opponent']['acronym']?? "keine Daten";
+          opponent1url = match['opponents'][0]['opponent']['image_url']?? "keine Daten";
           opponent2url = match['opponents'][1]['opponent']['image_url'];
           }else{
           opponent1 = "keine Daten";
           opponent2 = "keine Daten";
           opponent1url = "keine Daten";
           opponent2url = "keine Daten";
+          opponent_short1 = "keine Daten";
+          opponent_short2 = "keine Daten";
           }
-          print("lOL" + opponent1 + opponent2);
+          print("lOL" + opponent_short1 + opponent_short2);
 
-          final teamInfo = TeamInfo(name,opponent1,opponent1url,opponent2,opponent2url, date,time, league, series, leagueurl,timeCalender, '');
+          final teamInfo = TeamInfo(name,opponent1,opponent1url,opponent2,opponent2url, date,time, league, series, leagueurl,timeCalender, '',opponent_short1,opponent_short2, videoGame);
           teamInfos.add(teamInfo);
         }
     }
   if(dataValo != null){
           for (var match in dataValo) {
-            List<String> parts = [];
-            String date = '';
-            DateTime timeCalender = DateTime.now();
-            String time = '';
-            final String name = match['name'];
-            final String timestamp = match['begin_at'] ?? 'Unknown';
-            if(timestamp == 'Unknown'){
-              continue;
+                final String name = match['name'];
+                final String videoGame = match['videogame'];
+                 String timestamp = match['begin_at'] ?? 'Unknown';
+                  List<String> parts = [];
+                  String date = '';
+                  DateTime timeCalender = DateTime.now();
+                  String time = '';
+                  if(timestamp == 'Unknown'){
+                    continue;
+                  }
+                  else
+                  {
+                  parts = timestamp.split("T");
+                  date = parts[0];
+                  timeCalender = DateTime.parse(timestamp.split('T')[0]);
+                  time = parts[1];
+                  }
+                final String league = match['league'];
+                final String leagueurl = match['leagueurl']; // Korrektur des Feldnamens
+                final String series = match['serie'];
+                final List<dynamic> opponents = match['opponents'];
+                String opponent1 = '';
+                String opponent2 = '';
+                String opponent1url = '';
+                String opponent2url = '';
+                String opponent_short1 = '';
+                String opponent_short2 = '';
 
-            }
-            else
-            {           
-            parts = timestamp.split("T");
-            date = parts[0];
-            timeCalender = DateTime.parse(timestamp.split('T')[0]);
-            time = parts[1];
-            }
-           
-            final String league = match['league'];
-            final String leagueurl = match['leagueurl']; // Korrektur des Feldnamens
-            final String series = match['serie'];
-            final List<dynamic> opponents = match['opponents'];
-            String opponent1 = '';
-            String opponent2 = '';
-            String opponent1url = '';
-            String opponent2url = '';
+                if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
+                opponent1 = match['opponents'][0]['opponent']['name'];
+                opponent2 = match['opponents'][1]['opponent']['name'];
+                opponent_short1 = match['opponents'][0]['opponent']['acronym']?? "keine Daten";
+                opponent_short2 = match['opponents'][1]['opponent']['acronym']?? "keine Daten";
+                opponent1url = match['opponents'][0]['opponent']['image_url']?? "keine Daten";
+                opponent2url = match['opponents'][1]['opponent']['image_url'];
+                }else{
+                opponent1 = "keine Daten";
+                opponent2 = "keine Daten";
+                opponent1url = "keine Daten";
+                opponent2url = "keine Daten";
+                opponent_short1 = "keine Daten";
+                opponent_short2 = "keine Daten";
+                }
+            print("lOL" + opponent_short1 + opponent_short2);
 
-            
-            if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
-            opponent1 = match['opponents'][0]['opponent']['name'];
-            opponent2 = match['opponents'][1]['opponent']['name'];
-  
-  
-            opponent1url = match['opponents'][0]['opponent']['image_url'];
-            opponent2url = match['opponents'][1]['opponent']['image_url'];
-            }else{
-            opponent1 = "keine Daten";
-            opponent2 = "keine Daten";
-            opponent1url = "keine Daten";
-            opponent2url = "keine Daten";
-            }
-            print("valo" + opponent1 + opponent2);
-
-            final teamInfo = TeamInfo(name,opponent1,opponent1url,opponent2,opponent2url, date,time, league, series, leagueurl,timeCalender, '');
+            final teamInfo = TeamInfo(name,opponent1,opponent1url,opponent2,opponent2url, date,time, league, series, leagueurl,timeCalender, '',opponent_short1,opponent_short2, videoGame);
             teamInfos.add(teamInfo);
           }
+
+          
+        }
+
+        if(dataCsgo != null){
+          for (var match in dataCsgo) {
+                  final String name = match['name'];
+                  final String videoGame = match['videogame'];
+                   String timestamp = match['begin_at'] ?? 'Unknown';
+                    List<String> parts = [];
+                    String date = '';
+                    DateTime timeCalender = DateTime.now();
+                    String time = '';
+                    if(timestamp == 'Unknown'){
+                      continue;
+                    }
+                    else
+                    {
+                    parts = timestamp.split("T");
+                    date = parts[0];
+                    timeCalender = DateTime.parse(timestamp.split('T')[0]);
+                    time = parts[1];
+                    }
+                  final String league = match['league'];
+                  final String leagueurl = match['leagueurl'] ?? 'Unknowm' ; // Korrektur des Feldnamens
+                  final String series = match['serie'];
+                  final List<dynamic> opponents = match['opponents'];
+                  String opponent1 = '';
+                  String opponent2 = '';
+                  String opponent1url = '';
+                  String opponent2url = '';
+                  String opponent_short1 = '';
+                  String opponent_short2 = '';
+
+                  if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
+                  opponent1 = match['opponents'][0]['opponent']['name'];
+                  opponent2 = match['opponents'][1]['opponent']['name'];
+                  opponent_short1 = match['opponents'][0]['opponent']['acronym']?? "keine Daten";
+                  opponent_short2 = match['opponents'][1]['opponent']['acronym']?? "keine Daten";
+                  opponent1url = match['opponents'][0]['opponent']['image_url']?? "keine Daten";
+                  opponent2url = match['opponents'][1]['opponent']['image_url'];
+                  }else{
+                  opponent1 = "keine Daten";
+                  opponent2 = "keine Daten";
+                  opponent1url = "keine Daten";
+                  opponent2url = "keine Daten";
+                  opponent_short1 = "keine Daten";
+                  opponent_short2 = "keine Daten";
+                  }
+                print("lOL" + opponent_short1 + opponent_short2);
+
+                final teamInfo = TeamInfo(name,opponent1,opponent1url,opponent2,opponent2url, date,time, league, series, leagueurl,timeCalender, '',opponent_short1,opponent_short2, videoGame);
+                teamInfos.add(teamInfo);
+          }
+
+          
   }
   
   return teamInfos;

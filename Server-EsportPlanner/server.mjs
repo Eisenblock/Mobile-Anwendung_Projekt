@@ -1,35 +1,45 @@
 import express from 'express';
 import fetch from 'node-fetch';
 import mongoose from 'mongoose';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
 const app = express();
 const port = 3000;
+let mongoServer;
 
 // Middleware für JSON-Anfragen
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/EsportPlanner', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'Verbindungsfehler mit der Datenbank:'));
-db.once('open', () => {
-  console.log('Verbunden mit der Datenbank');
+// Starten von mongodb-memory-server
+async function startMongoMemoryServer() {
+  mongoServer = await MongoMemoryServer.create();
+  const mongoUri = mongoServer.getUri();
+  await mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+  console.log('Verbunden mit der eingebetteten Datenbank');
+}
+
+// Middleware zum Starten der MongoDB-Verbindung
+startMongoMemoryServer().catch(err => {
+  console.error('Fehler beim Starten der eingebetteten Datenbank:', err);
+  process.exit(1); // Beende die Anwendung bei einem Fehler
 });
 
-const userSchema = new mongoose.Schema( {
+// Schema und Modell wie zuvor definieren
+const userSchema = new mongoose.Schema({
   name: String,
-  selectedGames: [String], // Spiele, die der Benutzer ausgewählt hat
-  selectedLeagues: [String], // Ligen, die der Benutzer ausgewählt hat
-  selectedLeagues_lol: [String], // Ligen, die der Benutzer ausgewählt hat
-  selectedLeagues_valo: [String], // Ligen, die der Benutzer ausgewählt hat
-  selectedTeams_lol: [String], // Teams, die der Benutzer ausgewählt hat
-  selectedTeams_valo: [String], // Teams, die der Benutzer ausgewählt hat
+  selectedGames: [String],
+  selectedLeagues_lol: [String],
+  selectedLeagues_valo: [String],
+  selectedTeams_lol: [String],
+  selectedTeams_valo: [String],
   username: String,
-  password : String
+  password: String
 });
 const User = mongoose.model('user', userSchema);
+
 
 app.put('/user/:id', async (req, res) => {
   try {
@@ -117,6 +127,8 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
           apiUrl = 'https://api.pandascore.co/lol/matches/upcoming';
       } else if (game === 'valorant') {
           apiUrl = 'https://api.pandascore.co/valorant/matches/upcoming';
+      } else if (game === 'csgo') {
+        apiUrl = 'https://api.pandascore.co/csgo/matches/upcoming';
       } 
       // Senden einer GET-Anfrage an die Pandascore-API für jedes Spiel
       const response = await fetch(`${apiUrl}?token=${apiKey}`);
@@ -130,12 +142,12 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
         league: match.league.name,
         leagueurl: match.league.image_url,
         serie: match.serie.name,
-        name: match.videogame.name,
+        videogame: match.videogame.name,
         // Füge weitere Felder hinzu, die du senden möchtest
       }));
 
       // Filtern der Daten nach den ausgewählten Ligen
-
+    /*
       if(game == 'lol'&& selectedLeagues_lol.length > 0){
     
         filteredData = filteredData.filter(match => selectedLeagues_lol.includes(match.league));
@@ -156,19 +168,19 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
 
       // Filtern der Daten nach den ausgewählten Teams
 
-     /* if(game == 'lol'&& selectedTeams_lol.length > 1){
+      if(game == 'lol'&& selectedTeams_lol.length > 1){
         const lolfilteredData = filteredData.filter(match => match.opponents[0].opponent.name == selectedTeams_lol || match.opponents[1].opponent.name == selectedTeams_lol);
         console.log(lolfilteredData);
       }else{
         console.log("Kein Team ausgewählt");
         
-      }*/
+      }
 
       if(game == 'valorant'&& selectedTeams_valo.length > 0){
         filteredData = filteredData.filter(match => match.opponents[0].opponent.name == selectedTeams_valo || match.opponents[1].opponent.name == selectedTeams_valo);
       }else{
         console.log("Kein Team ausgewählt");
-      }
+      }*/
 
       
 
