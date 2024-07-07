@@ -411,7 +411,6 @@ class _MyStatistikState extends State<MyStatistik> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-<<<<<<< HEAD
                              if (member.image_url != 'Unknown')
                               Image.network(
                                 member.image_url,
@@ -440,18 +439,6 @@ class _MyStatistikState extends State<MyStatistik> {
                                   ),
                                 ),
                               ), // Placeholder image if image_url is empty
-=======
-                              Container(
-                                width: 50, // Fixed width for the logo
-                                height: 50, // Fixed height for the logo
-                                child: member.image_url.isNotEmpty
-                                    ? Image.network(member.image_url, fit: BoxFit.cover)
-                                    : CircleAvatar(
-                                        child: Icon(Icons.person),
-                                        radius: 25,
-                                      ),
-                              ),
->>>>>>> 9b3add9c0c113a812afe9c210aa87f134aff555e
                               SizedBox(height: 8),
                               Text('${member.firstName} ${member.lastName}'),
                             ],
