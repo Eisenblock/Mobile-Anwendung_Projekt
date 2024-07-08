@@ -16,6 +16,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
   List<String> _games = ['lol', 'valorant'];
   List<String> _selectedGames = [];
 
+
+// Register the user
   Future<void> _register() async {
     print(_selectedGames);
     if (_formKey.currentState!.validate()) {
@@ -39,6 +41,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
     Navigator.pushReplacementNamed(context, '/login');
   }
 
+
+// Build the registration form
   @override
   Widget build(BuildContext context) {
     return Scaffold(

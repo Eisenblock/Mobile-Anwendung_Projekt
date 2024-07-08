@@ -31,16 +31,17 @@ startMongoMemoryServer().catch(err => {
 const userSchema = new mongoose.Schema({
   name: String,
   selectedGames: [String],
-  selectedLeagues_lol: [String],
+  /*selectedLeagues_lol: [String],
   selectedLeagues_valo: [String],
   selectedTeams_lol: [String],
-  selectedTeams_valo: [String],
+  selectedTeams_valo: [String],*/
   username: String,
   password: String
 });
 const User = mongoose.model('user', userSchema);
 
 
+//Endpoint Change User Data
 app.put('/user/:id', async (req, res) => {
   try {
     const userId = req.params.id;
@@ -63,6 +64,8 @@ app.put('/user/:id', async (req, res) => {
   }
 });
 
+
+//Endpoint add User Data
 app.post('/user', async (req, res) => {
   try {
     const { name, selectedGames, username, password } = req.body;
@@ -77,7 +80,7 @@ app.post('/user', async (req, res) => {
 });
 
 
-
+//Endpoint get User Data
 app.get('/user', async (req, res) => {
   try {
     // Alle Benutzer aus der Datenbank abrufen
@@ -102,6 +105,7 @@ app.get('/user', async (req, res) => {
   }
 });
 
+//Endpoint get coming matches for user
 app.get('/user/:_id/upcoming-matches', async (req, res) => {
   try {
     const userId = req.params._id;
@@ -199,6 +203,8 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
   }
 });
 
+
+//Endpoint get Leagues from all Games 
 app.get('/allGames/leagues', async (req, res) => {
   try {
     const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
@@ -247,6 +253,8 @@ app.get('/allGames/leagues', async (req, res) => {
   }
 });
 
+
+//Endpoint get Teams from all Games
 app.get('/allGames/teams', async (req, res) => {
   try {
     const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
@@ -296,39 +304,9 @@ app.get('/allGames/teams', async (req, res) => {
   }
 });
 
-app.get('/lol/teams', async (req, res) => {
-
-  const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
-  const apiUrl = 'https://api.pandascore.co/lol/teams';
-  const response = await fetch(`${apiUrl}?token=${apiKey}`);
-  const data = await response.json();
-
-  const filteredData = data // Filtern der Ligen, bei denen season nicht null ist
-    .map(team => ({
-      name: team.name,
-      players : team.players,
-    }));
 
 
-
-  res.json({teams : filteredData});
-});
-
-app.get('/teams', async (req, res) => {
-  const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';
-  const apiUrl = 'https://api.pandascore.co/matches/past';
-  const response = await fetch(`${apiUrl}?token=${apiKey}`);
-  const data = await response.json();
-
-  const filteredData = data // Filtern der Ligen, bei denen season nicht null ist
-    .map(match => ({
-      team: match.opponents[0].opponent.name,
-      team2: match.opponents[1].opponent.name,
-    }));
-
-    res.json({teams : filteredData});
-});
-
+//Endpoint get past matches
 app.get('/past-matches', async (req, res) => {
   try {
     const apiKey = 'UTMd3q96vtvq4-izN1bAeHbo5c9xoA8vGzaztOUk3obRJi3WVfM';

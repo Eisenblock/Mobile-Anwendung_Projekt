@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'user_model.dart';
+import '../Widgets/Objects/user_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ma/MyHomePage.dart';
+import 'package:flutter_application_ma/Widgets/Homepage/MyHomePage.dart';
 import 'package:http/http.dart' as http;
-import 'Users.dart';
-import 'Loader.dart';
-import 'TeamInfo.dart';
-import 'MyHomePage.dart';
+import '/Widgets/Objects/Users.dart';
+import '../Data/Loader.dart';
+import '/Widgets/Objects/TeamInfo.dart';
+import '/Widgets/Homepage/MyHomePage.dart';
 
 Loader loader = Loader();
 Users users = Users('','','','');
@@ -30,7 +30,8 @@ class _LoginPageState extends State<LoginScreen> {
   String id = '';
 
 
-  Future<void> fetchUsers() async {
+//Get the users from the database
+Future<void> fetchUsers() async {
  print('Benutzerliste:');
     _users = await loader.fetchUsers();
     print('Benutzerliste:');
@@ -40,6 +41,9 @@ class _LoginPageState extends State<LoginScreen> {
     setState(() {});
   }
 
+
+//Login the user
+//Check if the entered username is in the list of users
   void loginUser() {
     fetchUsers();
     final enteredUsername = usernameController.text;
@@ -86,6 +90,7 @@ void navigateToRegistration() {
     fetchUsers();
   }
 
+//Build the login form
   @override
   Widget build(BuildContext context) {
     return Scaffold(

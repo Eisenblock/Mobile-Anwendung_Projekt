@@ -1,12 +1,12 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ma/past_matches.dart'; // Import your PastMatches model
+import 'package:flutter_application_ma/Widgets/Objects/past_matches.dart'; // Import your PastMatches model
 import 'package:provider/provider.dart';
-import 'Loader.dart';
-import 'user_model.dart';
-import 'LoL_Teams.dart';
-import 'MyHomePage.dart'; // Import your HomePage
+import '../../Data/Loader.dart';
+import '../Objects/user_model.dart';
+import '/Widgets/Objects/LoL_Teams.dart';
+import '/Widgets/Homepage/MyHomePage.dart'; // Import your HomePage
 
 class MyStatistik extends StatefulWidget {
   final String title;
@@ -18,6 +18,8 @@ class MyStatistik extends StatefulWidget {
 }
 
 class _MyStatistikState extends State<MyStatistik> {
+
+  //variables
   List<PastMatches> _pastmatches = [];
   List<PastMatches> _filteredPastMatches = [];
   List<LoL_Team> _teams = [];
@@ -36,6 +38,8 @@ class _MyStatistikState extends State<MyStatistik> {
     _searchController.addListener(_filterResults);
   }
 
+
+//Get the past matches from the backend
   Future<void> fetchMatches() async {
     try {
       final String userId = Provider.of<UserModel>(context, listen: false).id;
@@ -71,6 +75,8 @@ class _MyStatistikState extends State<MyStatistik> {
     }
   }
 
+
+//Change the build to show the past matches (valo or lol)
   Future<void> changeBuild_pastMatches() async {
    bool _showPastMatches = true;
     setState(() {
@@ -78,6 +84,7 @@ class _MyStatistikState extends State<MyStatistik> {
     });
   }
 
+//Filter the results : search function
   void _filterResults() {
     final query = _searchController.text.toLowerCase();
     if (showTeams) {
@@ -101,6 +108,8 @@ class _MyStatistikState extends State<MyStatistik> {
     }
   }
 
+
+//Reset to default
   void _resetSearch() {
     _searchController.clear();
     setState(() {
@@ -109,16 +118,7 @@ class _MyStatistikState extends State<MyStatistik> {
     });
   }
 
-  String formatDate(String dateTimeString) {
-    DateTime dateTime = DateTime.parse(dateTimeString);
-    return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
-  }
-
-  String formatTime(String dateTimeString) {
-    DateTime dateTime = DateTime.parse(dateTimeString);
-    return '${dateTime.hour}:${dateTime.minute}';
-  }
-
+//Show the Teams
   void _selectTeam(LoL_Team team) {
     setState(() {
       _selectedTeam = team;
@@ -134,6 +134,7 @@ class _MyStatistikState extends State<MyStatistik> {
     );
   }
 
+//Filter the games (lol or valorant)
   void _filterByGame(String game) {
     setState(() {
       _selectedGame = game;
@@ -143,6 +144,8 @@ class _MyStatistikState extends State<MyStatistik> {
     });
   }
 
+
+//Build the Statistik
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -254,6 +257,8 @@ class _MyStatistikState extends State<MyStatistik> {
     );
   }
 
+
+//Build the Past Matches Databox
   Widget buildPastMatches() {
     if (_filteredPastMatches.isEmpty) {
       return Center(child: Text('No past matches available'));
@@ -372,6 +377,8 @@ class _MyStatistikState extends State<MyStatistik> {
     }
   }
 
+
+//Build the Teams Databox
   Widget buildTeams() {
     if (_filteredTeams.isEmpty) {
       return Center(child: Text('No teams found'));

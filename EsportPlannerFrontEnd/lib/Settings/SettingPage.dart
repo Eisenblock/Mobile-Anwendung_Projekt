@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'user_model.dart';
-import 'LoL_Leagues.dart';
-import 'loader.dart';
-import 'LoL_Teams.dart';
+import '/Widgets/Objects/user_model.dart';
+import '/Widgets/Objects/LoL_Leagues.dart';
+import '/Data/loader.dart';
+import '/Widgets/Objects/LoL_Teams.dart';
 import 'AdvanceSettingPage.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -14,6 +14,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+
+  //variablen
   List<String> settingsOptions = ['lol', 'valorant', 'csgo'];
   String selectedLeague = '';
   List<LoL_Team> teams = [];
@@ -37,6 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
     
   }
 
+//Get all leagues from the backend
 Future<void> fetchLeagues() async {
     List<LoL_Leagues> _leagues = [];
     _leagues = await loader.fetchAllLeagues();
@@ -57,7 +60,8 @@ Future<void> fetchTeams() async {
     print(teams);
 }
 
-  Future<void> saveSettingsToBackend(List<String> selectedGames, List<String> selectedLeagues) async {
+//Save the settings to the backend
+Future<void> saveSettingsToBackend(List<String> selectedGames, List<String> selectedLeagues) async {
     final id = Provider.of<UserModel>(context, listen: false).id;
     final url = 'http://$ip_Adress:3000/user/$id' ; // Ersetze dies durch die URL deines Backends
 
@@ -77,6 +81,8 @@ Future<void> fetchTeams() async {
     
   }
 
+
+//Build the settings page
 @override
 Widget build(BuildContext context) {
   return Scaffold(

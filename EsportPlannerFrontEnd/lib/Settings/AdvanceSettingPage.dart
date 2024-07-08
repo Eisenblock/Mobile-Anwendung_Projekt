@@ -1,11 +1,16 @@
-import 'Loader.dart';
-import 'LoL_Leagues.dart';
-import 'LoL_Teams.dart';
+//Not needed anymore, but kept for reference
+
+
+
+
+import '../Data/Loader.dart';
+import '/Widgets/Objects/LoL_Leagues.dart';
+import '/Widgets/Objects/LoL_Teams.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
-import 'user_model.dart';
+import '../Widgets/Objects/user_model.dart';
 
 class AdvanceSettingPage extends StatefulWidget {
 

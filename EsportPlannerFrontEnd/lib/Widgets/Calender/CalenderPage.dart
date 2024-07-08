@@ -1,12 +1,12 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ma/Event_Calender.dart';
+import 'package:flutter_application_ma/Widgets/Objects/Event_Calender.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'TeamInfo.dart';
-import'Loader.dart';
+import '/Widgets/Objects/TeamInfo.dart';
+import'../../Data/Loader.dart';
 import 'package:provider/provider.dart ';
-import 'user_model.dart';
+import '../Objects/user_model.dart';
 
 class CalendarPage extends StatefulWidget {
   final String title;
@@ -18,11 +18,15 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+
+   //variablen
   Loader loader = Loader();
   List<TeamInfo> teamInfos = [];
   String id = '';
   final Map<DateTime, List<String>> events = {};
-  Map<DateTime, bool> eventsExistence = {};
+  Map<DateTime, bool> eventsExistence = {}; 
+  DateTime firstDate = DateTime.now(); // Frühestes Datum
+  DateTime lastDate = DateTime(1900); // Spätestes Datum
 
   @override
   void initState() {
@@ -31,20 +35,19 @@ class _CalendarPageState extends State<CalendarPage> {
     GetGameInfo();
   }
 
- DateTime firstDate = DateTime.now(); // Frühestes Datum
-  DateTime lastDate = DateTime(1900); // Spätestes Datum
 
+//Get the game information from the backend
 Future<void> GetGameInfo() async {
   
     id = Provider.of<UserModel>(context, listen: false).id;
-    // Verwende die Beispieldaten
+   
     List<TeamInfo> _teamInfos = await loader.fetchTeamInfosLoL(id);
 
-    // Initialisiere firstDate und lastDate mit extremen Werten
+    // Initialisiere firstDate und lastDate
     DateTime earliestDate = DateTime.now();
     DateTime latestDate = DateTime(1900);
 
-    // Durchlaufe die Teaminfos und aktualisiere die events-Map
+    
     _teamInfos.forEach((teamInfo) {
       DateTime eventDate = DateTime.parse(teamInfo.date);
 
@@ -57,10 +60,10 @@ Future<void> GetGameInfo() async {
       }
 
       if (events.containsKey(eventDate)) {
-        // Füge den Namen des Teams zu den vorhandenen Events hinzu
+        
         events[eventDate]!.add(teamInfo.name);
       } else {
-        // Erstelle eine neue Liste mit dem Namen des Teams unter diesem Datum
+        
         events[eventDate] = [teamInfo.series];
       }
 
@@ -86,6 +89,7 @@ Future<void> GetGameInfo() async {
   
 }
 
+//Build the calender
 @override
 Widget build(BuildContext context) {
   if (firstDate == null || lastDate == null) {
@@ -111,6 +115,7 @@ Widget build(BuildContext context) {
   );
 }
 
+//Build the Dates
 Widget _buildEventWrap(List<DateTime> allDates) {
   return Wrap(
     spacing: 16.0,
@@ -122,6 +127,7 @@ Widget _buildEventWrap(List<DateTime> allDates) {
   );
 }
 
+//Set the events
 Widget _buildEventColumn(DateTime date) {
   String formattedDate = _formatDate(date);
   List<Event_Calender> dayEvents = [];
@@ -152,6 +158,8 @@ Widget _buildEventColumn(DateTime date) {
   );
 }
 
+
+//Build the Date Box
 Widget _buildDateBox(String formattedDate) {
   return Container(
     width: 380,
@@ -171,6 +179,7 @@ Widget _buildDateBox(String formattedDate) {
   );
 }
 
+//Build the Event List
 Widget _buildEventList(List<Event_Calender> dayEvents) {
   if (dayEvents.isEmpty) {
     return SizedBox.shrink(); // Zeige nichts an, wenn dayEvents leer ist
@@ -196,6 +205,7 @@ Widget _buildEventList(List<Event_Calender> dayEvents) {
   );
 }
 
+//Build the Event Box
 Widget _buildEventBox(Event_Calender event) {
   return Container(
     margin: EdgeInsets.symmetric(vertical: 8.0),
@@ -306,17 +316,9 @@ Widget _buildEventBox(Event_Calender event) {
       ],
     ),
   );
-}
+} 
 
-
-
-
-
-
-
-
-
-  String _formatDate(DateTime date) {
+    String _formatDate(DateTime date) {
     List<String> weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     List<String> months = [
       'Jan',
@@ -339,6 +341,16 @@ Widget _buildEventBox(Event_Calender event) {
 
     return '$dayOfWeek, $day $month';
   }
+
+
+
+
+
+
+
+
+
+ 
 }
 
 

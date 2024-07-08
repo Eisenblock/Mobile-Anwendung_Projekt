@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Stelle sicher, dass du das benötigte Paket importierst
-import 'user_model.dart';
-import 'Loader.dart';
-import 'TeamInfo.dart';
-import 'LoginScreen.dart';
+import '../Objects/user_model.dart';
+import '/Data/Loader.dart';
+import '/Widgets/Objects/TeamInfo.dart';
+import '/Loging/LoginScreen.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -15,6 +15,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+
+  //variables
   int _counter = 0;
   String id = '';
   List<TeamInfo> _teamInfos = [];
@@ -25,6 +27,7 @@ class _MyHomePageState extends State<MyHomePage> {
     fetchTeamInfosLoL();
   }
 
+//Get the upcoming matches from the backend
   Future<void> fetchTeamInfosLoL() async {
     List<TeamInfo> teamInfos = [];
     final id = Provider.of<UserModel>(context, listen: false).id;
@@ -36,12 +39,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<void> SetIDUser(String _id) async {
-    setState(() {
-      id = _id; // ID des Benutzers übergeben
-    });
-  }
 
+//Build the Homepage
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  // Methode zum Erstellen der Team-Info-Liste
+//Build the Team Box
 Widget buildTeamInfoList() {
   if (_teamInfos.isEmpty) {
     return Center(
