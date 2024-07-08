@@ -1,12 +1,10 @@
-
-
 import 'package:flutter/material.dart';
-import 'package:flutter_application_ma/past_matches.dart'; // Import your PastMatches model
+import 'package:flutter_application_ma/past_matches.dart';
 import 'package:provider/provider.dart';
 import 'Loader.dart';
 import 'user_model.dart';
 import 'LoL_Teams.dart';
-import 'MyHomePage.dart'; // Import your HomePage
+import 'MyHomePage.dart';
 
 class MyStatistik extends StatefulWidget {
   final String title;
@@ -22,74 +20,65 @@ class _MyStatistikState extends State<MyStatistik> {
   List<PastMatches> _filteredPastMatches = [];
   List<LoL_Team> _teams = [];
   List<LoL_Team> _filteredTeams = [];
-  Loader _loader = Loader();
-  bool showPastMatches = true; // Show past matches by default
+  final Loader _loader = Loader();
+  bool showPastMatches = true;
   bool showTeams = false;
-  TextEditingController _searchController = TextEditingController();
-  LoL_Team? _selectedTeam; // Track the selected team
-  String? _selectedGame; // Track the selected game (lol or valorant)
+  final TextEditingController _searchController = TextEditingController();
+  LoL_Team? _selectedTeam;
+  String? _selectedGame;
 
   @override
   void initState() {
     super.initState();
-    fetchMatches(); // Fetch both LOL and Valorant matches initially
     _searchController.addListener(_filterResults);
+    fetchMatches();
   }
 
-  Future<void> fetchMatches() async {
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterResults);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> fetchMatches({String? game}) async {
     try {
       final String userId = Provider.of<UserModel>(context, listen: false).id;
       List<PastMatches> matches = await _loader.fetchPastMatches(userId);
-      print("----------------------------------------------");
-      print(matches);
-
-      // Filter matches to only include lol or valorant
-      matches = matches.where((match) => match.videogame.toLowerCase() == 'lol' || match.videogame.toLowerCase() == 'valorant').toList();
-
       setState(() {
         _pastmatches = matches;
         _filteredPastMatches = matches;
       });
-      print('Fetched ${_pastmatches.length} matches');
+      print('Fetched ${_pastmatches.length} matches for game: $game');
     } catch (error) {
       print('Error fetching matches: $error');
-      // Handle error as needed
     }
   }
 
-    Future<void> fetchAllTeamsLoL() async {
+  Future<void> fetchAllTeamsLoL() async {
     try {
       List<LoL_Team> teams = await _loader.fetchAllTeamsLoL();
-      showPastMatches = false;
       setState(() {
         _teams = teams;
         _filteredTeams = teams;
+        showTeams = true;
+        showPastMatches = false;
       });
     } catch (error) {
       print('Error fetching teams: $error');
-      // Handle error as needed
     }
-  }
-
-  Future<void> changeBuild_pastMatches() async {
-   bool _showPastMatches = true;
-    setState(() {
-      showPastMatches = _showPastMatches;
-    });
   }
 
   void _filterResults() {
     final query = _searchController.text.toLowerCase();
-    if (showTeams) {
-      setState(() {
+    setState(() {
+      if (showTeams) {
         _filteredTeams = _teams.where((team) {
           return team.name.toLowerCase().contains(query) ||
               team.teamMembers.any((member) =>
                   '${member.firstName} ${member.lastName}'.toLowerCase().contains(query));
         }).toList();
-      });
-    } else if (showPastMatches) {
-      setState(() {
+      } else if (showPastMatches) {
         _filteredPastMatches = _pastmatches.where((match) {
           return match.videogame.toLowerCase() == _selectedGame &&
               (match.opponent1.toLowerCase().contains(query) ||
@@ -97,8 +86,8 @@ class _MyStatistikState extends State<MyStatistik> {
                   match.name.toLowerCase().contains(query) ||
                   match.league.toLowerCase().contains(query));
         }).toList();
-      });
-    }
+      }
+    });
   }
 
   void _resetSearch() {
@@ -109,16 +98,6 @@ class _MyStatistikState extends State<MyStatistik> {
     });
   }
 
-  String formatDate(String dateTimeString) {
-    DateTime dateTime = DateTime.parse(dateTimeString);
-    return '${dateTime.day}.${dateTime.month}.${dateTime.year}';
-  }
-
-  String formatTime(String dateTimeString) {
-    DateTime dateTime = DateTime.parse(dateTimeString);
-    return '${dateTime.hour}:${dateTime.minute}';
-  }
-
   void _selectTeam(LoL_Team team) {
     setState(() {
       _selectedTeam = team;
@@ -127,131 +106,13 @@ class _MyStatistikState extends State<MyStatistik> {
     });
   }
 
-  void _navigateToHomePage(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MyHomePage(title: 'Home')),
-    );
-  }
-
   void _filterByGame(String game) {
     setState(() {
       _selectedGame = game;
-      showTeams = game != 'lol'; // Show teams view for Valorant
-      showPastMatches = game == 'lol'; // Show past matches view for LOL
-      _filteredPastMatches = _pastmatches.where((match) => match.videogame.toLowerCase() == game).toList();
+      showTeams = false;
+      showPastMatches = true;
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  _filterByGame('lol');
-                },
-                child: Image.asset(
-                  'assets/lol_logo.png',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  _filterByGame('valorant');
-                },
-                child: Image.asset(
-                  'assets/valorant_logo.png',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      labelText: 'Search',
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(Icons.search),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.refresh),
-                  onPressed: _resetSearch,
-                  tooltip: 'Refresh',
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: showPastMatches ? buildPastMatches() : buildTeams(),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Handle action button press
-        },
-        tooltip: 'Action',
-        child: Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.group),
-                    onPressed: () {
-                      fetchAllTeamsLoL();
-                    },
-                  ),
-                  Text('Teams', style: TextStyle(fontSize: 12)),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.gamepad),
-                    onPressed: () {
-                      changeBuild_pastMatches();
-                    },
-                  ),
-                  Text('Spiele', style: TextStyle(fontSize: 12)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    fetchMatches(game: game);
   }
 
   Widget buildPastMatches() {
@@ -262,12 +123,8 @@ class _MyStatistikState extends State<MyStatistik> {
         itemCount: _filteredPastMatches.length,
         itemBuilder: (context, index) {
           final pastMatch = _filteredPastMatches[index];
-
-          // Convert winner1 and winner2 from String to int
           int winner1Points = int.parse(pastMatch.winner1);
           int winner2Points = int.parse(pastMatch.winner2);
-
-          // Determine the winner based on points
           bool isWinner1 = winner1Points > winner2Points;
           bool isWinner2 = winner2Points > winner1Points;
 
@@ -292,8 +149,8 @@ class _MyStatistikState extends State<MyStatistik> {
                           Column(
                             children: [
                               Container(
-                                width: 50, // Fixed width for the logo
-                                height: 50, // Fixed height for the logo
+                                width: 50,
+                                height: 50,
                                 child: Stack(
                                   children: [
                                     Image.network(pastMatch.opponent1url, fit: BoxFit.cover),
@@ -307,10 +164,7 @@ class _MyStatistikState extends State<MyStatistik> {
                                 ),
                               ),
                               SizedBox(height: 5),
-                              Text(
-                                '$winner1Points ',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+                              Text('$winner1Points ', style: TextStyle(fontWeight: FontWeight.bold)),
                             ],
                           ),
                         Text('vs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
@@ -318,8 +172,8 @@ class _MyStatistikState extends State<MyStatistik> {
                           Column(
                             children: [
                               Container(
-                                width: 50, // Fixed width for the logo
-                                height: 50, // Fixed height for the logo
+                                width: 50,
+                                height: 50,
                                 child: Stack(
                                   children: [
                                     Image.network(pastMatch.opponent2url, fit: BoxFit.cover),
@@ -333,16 +187,12 @@ class _MyStatistikState extends State<MyStatistik> {
                                 ),
                               ),
                               SizedBox(height: 5),
-                              Text(
-                                '$winner2Points',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+                              Text('$winner2Points', style: TextStyle(fontWeight: FontWeight.bold)),
                             ],
                           ),
                       ],
                     ),
                   ),
-                  // Nested ExpansionTile for additional information
                   ExpansionTile(
                     title: Text('More Info'),
                     children: [
@@ -352,8 +202,8 @@ class _MyStatistikState extends State<MyStatistik> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              width: 50, // Fixed width for the logo
-                              height: 50, // Fixed height for the logo
+                              width: 50,
+                              height: 50,
                               child: Image.network(pastMatch.leagueUrl, fit: BoxFit.cover),
                             ),
                             SizedBox(width: 5),
@@ -372,69 +222,179 @@ class _MyStatistikState extends State<MyStatistik> {
     }
   }
 
-  Widget buildTeams() {
-    if (_filteredTeams.isEmpty) {
-      return Center(child: Text('No teams found'));
-    } else {
-      return ListView.builder(
-        itemCount: _filteredTeams.length,
-        itemBuilder: (context, index) {
-          final team = _filteredTeams[index];
-          return GestureDetector(
-            onTap: () {
-              _selectTeam(team);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Card(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+ Widget buildTeams() {
+  if (_filteredTeams.isEmpty) {
+    return Center(child: Text('No teams found'));
+  } else {
+    return ListView.builder(
+      itemCount: _filteredTeams.length,
+      itemBuilder: (context, index) {
+        final team = _filteredTeams[index];
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Card(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(team.name, style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: team.teamMembers.length,
+                  itemBuilder: (context, memberIndex) {
+                    final member = team.teamMembers[memberIndex];
+                    return GestureDetector(
+                      onTap: () {
+                        // Handle tap on player to show details
+                        print('Tapped on ${member.firstName} ${member.lastName}');
+                        // You can navigate to player details or expand more info here
+                      },
+                      child: ExpansionTile(
+                        title: Row(
+                          children: [
+                            if (member.image_url.isNotEmpty)
+                              Container(
+                                width: 50,
+                                height: 50,
+                                child: Image.network(member.image_url, fit: BoxFit.cover),
+                              ),
+                            SizedBox(width: 10),
+                            Text('${member.firstName} ${member.lastName}'),
+                          ],
+                        ),
                         children: [
-                          Text(
-                            team.name,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          )
+                          ListTile(
+                          ),
                         ],
                       ),
-                    ),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      children: team.teamMembers.map((member) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 50, // Fixed width for the logo
-                                height: 50, // Fixed height for the logo
-                                child: member.image_url.isNotEmpty
-                                    ? Image.network(member.image_url, fit: BoxFit.cover)
-                                    : CircleAvatar(
-                                        child: Icon(Icons.person),
-                                        radius: 25,
-                                      ),
-                              ),
-                              SizedBox(height: 8),
-                              Text('${member.firstName} ${member.lastName}'),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+                    );
+                  },
                 ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+
+
+  @override
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(widget.title),
+    ),
+    body: Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            GestureDetector(
+              onTap: () {
+                _filterByGame('lol');
+              },
+              child: Image.asset(
+                'assets/lol_logo.png',
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
               ),
             ),
-          );
-        },
-      );
-    }
-  }
+            GestureDetector(
+              onTap: () {
+                _filterByGame('valorant');
+              },
+              child: Image.asset(
+                'assets/valo_logo.webp',
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    labelText: 'Search',
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.search),
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: _resetSearch,
+                tooltip: 'Refresh',
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
+        Expanded(
+          child: showPastMatches ? buildPastMatches() : buildTeams(),
+        ),
+      ],
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () {
+        // Handle action button press
+      },
+      tooltip: 'Action',
+      child: Icon(Icons.add),
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    bottomNavigationBar: BottomAppBar(
+      shape: CircularNotchedRectangle(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.group),
+                  onPressed: fetchAllTeamsLoL,
+                ),
+                Text('Teams', style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.gamepad),
+                  onPressed: () {
+                    setState(() {
+                      showPastMatches = true;
+                      showTeams = false;
+                    });
+                  },
+                ),
+                Text('Spiele', style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 }
