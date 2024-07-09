@@ -5,5 +5,5 @@ class LoL_TeamMember {
   int age;
   String role;
 
-  LoL_TeamMember(this.firstName, this.lastName,this.image_url,this.role,this.age);
+  LoL_TeamMember(this.firstName, this.lastName,this.image_url,this.age,this.role);
 }

@@ -179,7 +179,7 @@ Future<List<PastMatches>> fetchPastMatches(String id) async {
         String opponent2 = 'keine Daten';
         String opponent1url = 'keine Daten';
         String opponent2url = 'keine Daten';
-        String videogame = 'valorant';
+        String videogame = match['videogame'];
         String winner1 = 'keine Daten';
         String winner2 = 'keine Daten';
 
@@ -379,12 +379,21 @@ Future<List<LoL_Team>> fetchAllTeamsLoL() async {
       String firstName = member['first_name'] ?? 'Unknown'; // Fallback-Wert 'Unknown' bei null
       String lastName = member['last_name'] ?? 'Unknown';   // Fallback-Wert 'Unknown' bei null
       String image_url = member['image_url'] ?? 'Unknown';   // Fallback-Wert 'Unknown' bei null
+       int age = 0; 
+      if (member['age'] == null) {
+        continue;
+      }else{
+        age = member['age'];
+      }
+     
+      String role = member['role'] ?? 'Unknown';   // Fallback-Wert 'Unknown' bei null
 
       // Debugging-Ausgabe der Namen
       print('First Name: $firstName, Last Name: $lastName');
 
-      LoL_TeamMember teamMember = LoL_TeamMember(firstName, lastName,image_url);
+      LoL_TeamMember teamMember = LoL_TeamMember(firstName, lastName,image_url, age, role);
       teamMembers.add(teamMember);
+     
     }
 
     final LoL_Team lolTeam = LoL_Team(name, teamMembers, 'lol');
@@ -409,11 +418,18 @@ Future<List<LoL_Team>> fetchAllTeamsLoL() async {
       String firstName = member['first_name'] ?? 'Unknown'; // Fallback-Wert 'Unknown' bei null
       String lastName = member['last_name'] ?? 'Unknown';   // Fallback-Wert 'Unknown' bei null
       String image_url = member['image_url'] ?? 'Unknown';   // Fallback-Wert 'Unknown' bei null
+      int age = 0; 
+      if (member['age'] == null) {
+        continue;
+      }else{
+        age = member['age'];
+      }
+      String role = member['role'] ?? 'Unknown';   // Fallback-Wert 'Unknown' bei null
 
       // Debugging-Ausgabe der Namen
       print('First Name: $firstName, Last Name: $lastName');
 
-      LoL_TeamMember teamMember = LoL_TeamMember(firstName, lastName,image_url);
+      LoL_TeamMember teamMember = LoL_TeamMember(firstName, lastName,image_url, age, role);
       teamMembers.add(teamMember);
     }
 
@@ -427,36 +443,5 @@ Future<List<LoL_Team>> fetchAllTeamsLoL() async {
 
   return teams;
 }
-
- /* Future<List<LoL_Team>> fetchAllTeamsLoL() async {
-    List<LoL_Team> teams  = [];  
-    final response = await http.get(Uri.parse('http://$ip_Adress:3000/allGames/teams'));
-
-    if (response.statusCode == 200) {
-      final dynamic combinedData = json.decode(response.body);      
-      final dynamic dataLoL_teams = combinedData['lolTeams'];
-      final dynamic dataValo_teams = combinedData['valorantTeams'];
-        
-
-          for (var league in dataLoL_teams) {
-            final String name = league['name'];
-            final String videogame = league['videogame'];
-             
-          
-            final LoL_Team lolLeague = LoL_Team(name,[],videogame);
-            teams.add(lolLeague);
-          }
-
-          for(var league in dataValo_teams){
-            final String name = league['name'];
-            final String videogame = league['videogame'];
-          
-            final LoL_Team valoLeague = LoL_Team(name,[],videogame);
-            teams.add(valoLeague);
-          }
-    }
-
-  return teams;
-  }*/
 
 }
