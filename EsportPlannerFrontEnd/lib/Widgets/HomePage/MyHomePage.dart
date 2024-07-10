@@ -20,6 +20,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   String id = '';
   List<TeamInfo> _teamInfos = [];
+  ScrollController _sscrollController = ScrollController();
 
   @override
   void initState() {
@@ -37,8 +38,16 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _teamInfos = teamInfos;
     });
+    _scrollToTop();
   }
 
+ void _scrollToTop() {
+    _sscrollController.animateTo(
+      0.0,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
 
 //Build the Homepage
   @override
@@ -50,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
+              color: Colors.white,
             onPressed: () {
               Navigator.pushNamed(context, '/settings');
             },
@@ -127,7 +137,7 @@ Widget buildTeamInfoList() {
                           children: [
                             Column(
                               children: [
-                                if (teamInfo.opponent1url != 'keine Daten')
+                                if (teamInfo.opponent1url != 'Unknown')
                                   Image.network(
                                     teamInfo.opponent1url,
                                     height: 80,
@@ -156,7 +166,7 @@ Widget buildTeamInfoList() {
                                     ),
                                   ),
                                 SizedBox(height: 4),
-                                if (teamInfo.opponent1 != 'keine Daten')
+                                if (teamInfo.opponent1 != 'Unknown')
                                   Text(
                                     teamInfo.opponent_short1,
                                     style: TextStyle(fontSize: 12),
@@ -174,7 +184,7 @@ Widget buildTeamInfoList() {
                             SizedBox(width: 8),
                             Column(
                               children: [
-                                if (teamInfo.opponent2url != 'keine Daten')
+                                if (teamInfo.opponent2url != 'Unknown')
                                   Image.network(
                                     teamInfo.opponent2url,
                                     height: 80,
@@ -203,7 +213,7 @@ Widget buildTeamInfoList() {
                                     ),
                                   ),
                                 SizedBox(height: 4),
-                                if (teamInfo.opponent2 != 'keine Daten')
+                                if (teamInfo.opponent2 != 'Unknown')
                                   Text(
                                     teamInfo.opponent_short2,
                                     style: TextStyle(fontSize: 12),

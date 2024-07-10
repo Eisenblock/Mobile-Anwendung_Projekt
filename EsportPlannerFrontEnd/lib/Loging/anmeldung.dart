@@ -96,7 +96,13 @@ Future<void> getBack() async {
                 },
               ),
               SizedBox(height: 20),
-              Text('Select your games:'),
+              Text(
+                  'Select your Games:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, // Setzt den Text auf fett gedruckt
+                    fontSize: 16.0, // Optional: Setzt die Schriftgröße
+                  ),
+                ),      
               for (String game in _games)
                 CheckboxListTile(
                   title: Text(game),

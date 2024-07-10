@@ -104,7 +104,7 @@ Widget build(BuildContext context) {
 
   return Scaffold(
     appBar: AppBar(
-      title: Text('Week View'),
+      title: Text('Calendar'),
     ),
     body: SingleChildScrollView(
       child: Center(
@@ -253,7 +253,7 @@ Widget _buildEventBox(Event_Calender event) {
             // Gegner 1
             Column(
               children: [
-                if (event.opponent1url != 'keine Daten')
+                if (event.opponent1url != 'Unknown')
                   Image.network(
                     event.opponent1url,
                     height: 40,
@@ -279,7 +279,7 @@ Widget _buildEventBox(Event_Calender event) {
                     ),
                   ),
                 SizedBox(height: 4),
-                if (event.opponent1 != 'keine Daten')
+                if (event.opponent1 != 'Unknown')
                   Text(
                     event.opponent1_short,
                     style: TextStyle(color: Colors.black, fontSize: 12),
@@ -298,7 +298,7 @@ Widget _buildEventBox(Event_Calender event) {
             // Gegner 2
             Column(
               children: [
-                if (event.opponent2url != 'keine Daten')
+                if (event.opponent2url != 'Unknown')
                   Image.network(
                     event.opponent2url,
                     height: 40,
@@ -324,7 +324,7 @@ Widget _buildEventBox(Event_Calender event) {
                     ),
                   ),
                 SizedBox(height: 4),
-                if (event.opponent2 != 'keine Daten')
+                if (event.opponent2 != 'Unknown')
                   Text(
                     event.opponent2_short,
                     style: TextStyle(color: Colors.black, fontSize: 12),

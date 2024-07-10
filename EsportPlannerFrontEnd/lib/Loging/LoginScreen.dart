@@ -106,7 +106,7 @@ void navigateToRegistration() {
             TextField(
               controller: usernameController,
               decoration: InputDecoration(
-                labelText: 'Benutzername',
+                labelText: 'Username',
               ),
             ),
             TextField(
@@ -120,12 +120,12 @@ void navigateToRegistration() {
             if (!isKeyboardVisible)
             ElevatedButton(
               onPressed: loginUser,
-              child: Text('Anmelden'),
+              child: Text('Login'),
             ),
             if (!isKeyboardVisible)
             ElevatedButton(
               onPressed: navigateToRegistration,
-              child: Text('Registrieren'),
+              child: Text('Registration'),
             ),
           ],
         ),

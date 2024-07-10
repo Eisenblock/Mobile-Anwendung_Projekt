@@ -93,17 +93,17 @@ Future<List<TeamInfo>> fetchTeamInfosLoL(String id) async {
           if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
           opponent1 = match['opponents'][0]['opponent']['name'];
           opponent2 = match['opponents'][1]['opponent']['name'];
-          opponent_short1 = match['opponents'][0]['opponent']['acronym']?? "keine Daten";
-          opponent_short2 = match['opponents'][1]['opponent']['acronym']?? "keine Daten";
-          opponent1url = match['opponents'][0]['opponent']['image_url']?? "keine Daten";
+          opponent_short1 = match['opponents'][0]['opponent']['acronym']?? "Unknown";
+          opponent_short2 = match['opponents'][1]['opponent']['acronym']?? "Unknown";
+          opponent1url = match['opponents'][0]['opponent']['image_url']?? "Unknown";
           opponent2url = match['opponents'][1]['opponent']['image_url'];
           }else{
-          opponent1 = "keine Daten";
-          opponent2 = "keine Daten";
-          opponent1url = "keine Daten";
-          opponent2url = "keine Daten";
-          opponent_short1 = "keine Daten";
-          opponent_short2 = "keine Daten";
+          opponent1 = "Unknown";
+          opponent2 = "Unknown";
+          opponent1url = "Unknown";
+          opponent2url = "Unknown";
+          opponent_short1 = "Unknown";
+          opponent_short2 = "Unknown";
           }
           print("lOL" + opponent_short1 + opponent_short2);
 
@@ -144,17 +144,17 @@ Future<List<TeamInfo>> fetchTeamInfosLoL(String id) async {
                 if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
                 opponent1 = match['opponents'][0]['opponent']['name'];
                 opponent2 = match['opponents'][1]['opponent']['name'];
-                opponent_short1 = match['opponents'][0]['opponent']['acronym']?? "keine Daten";
-                opponent_short2 = match['opponents'][1]['opponent']['acronym']?? "keine Daten";
-                opponent1url = match['opponents'][0]['opponent']['image_url']?? "keine Daten";
-                opponent2url = match['opponents'][1]['opponent']['image_url'];
+                opponent_short1 = match['opponents'][0]['opponent']['acronym']?? 'Unknown';
+                opponent_short2 = match['opponents'][1]['opponent']['acronym']?? 'Unknown';
+                opponent1url = match['opponents'][0]['opponent']['image_url']?? 'Unknown';
+                opponent2url = match['opponents'][1]['opponent']['image_url']?? 'Unknown';
                 }else{
-                opponent1 = "keine Daten";
-                opponent2 = "keine Daten";
-                opponent1url = "keine Daten";
-                opponent2url = "keine Daten";
-                opponent_short1 = "keine Daten";
-                opponent_short2 = "keine Daten";
+                 opponent1 = "Unknown";
+                  opponent2 = "Unknown";
+                  opponent1url = "Unknown";
+                  opponent2url = "Unknown";
+                  opponent_short1 = "Unknown";
+                  opponent_short2 = "Unknown";
                 }
             print("lOL" + opponent_short1 + opponent_short2);
 
@@ -198,17 +198,17 @@ Future<List<TeamInfo>> fetchTeamInfosLoL(String id) async {
                   if(opponents.isNotEmpty && opponents.length > 1 && opponents[0]['opponent']['image_url'] != null && opponents[1]['opponent']['image_url'] != null){
                   opponent1 = match['opponents'][0]['opponent']['name'];
                   opponent2 = match['opponents'][1]['opponent']['name'];
-                  opponent_short1 = match['opponents'][0]['opponent']['acronym']?? "keine Daten";
-                  opponent_short2 = match['opponents'][1]['opponent']['acronym']?? "keine Daten";
-                  opponent1url = match['opponents'][0]['opponent']['image_url']?? "keine Daten";
-                  opponent2url = match['opponents'][1]['opponent']['image_url'];
+                  opponent_short1 = match['opponents'][0]['opponent']['acronym']?? 'Unknown';
+                  opponent_short2 = match['opponents'][1]['opponent']['acronym']?? 'Unknown';
+                  opponent1url = match['opponents'][0]['opponent']['image_url']?? 'Unknown';
+                  opponent2url = match['opponents'][1]['opponent']['image_url']?? 'Unknown';
                   }else{
-                  opponent1 = "keine Daten";
-                  opponent2 = "keine Daten";
-                  opponent1url = "keine Daten";
-                  opponent2url = "keine Daten";
-                  opponent_short1 = "keine Daten";
-                  opponent_short2 = "keine Daten";
+                   opponent1 = "Unknown";
+                    opponent2 = "Unknown";
+                    opponent1url = "Unknown";
+                    opponent2url = "Unknown";
+                    opponent_short1 = "Unknown";
+                    opponent_short2 = "Unknown";
                   }
                 print("lOL" + opponent_short1 + opponent_short2);
 
@@ -269,15 +269,15 @@ Future<List<PastMatches>> fetchPastMatches(String id) async {
         String winner2 = 'keine Daten';
 
         if (opponents.isNotEmpty && opponents.length > 1) {
-          opponent1 = opponents[0]['opponent']['name'] ?? "keine Daten";
-          opponent2 = opponents[1]['opponent']['name'] ?? "keine Daten";
-          opponent1url = opponents[0]['opponent']['image_url'] ?? "keine Daten";
-          opponent2url = opponents[1]['opponent']['image_url'] ?? "keine Daten";
+          opponent1 = opponents[0]['opponent']['name'] ?? "Unknown";
+          opponent2 = opponents[1]['opponent']['name'] ?? "Unknown";
+          opponent1url = opponents[0]['opponent']['image_url'] ?? "Unknown";
+          opponent2url = opponents[1]['opponent']['image_url'] ?? "Unknown";
         }
 
         if (results.isNotEmpty && results.length > 1) {
-          winner1 = results[0]['score'].toString() ?? "keine Daten";
-          winner2 = results[1]['score'].toString() ?? "keine Daten";
+          winner1 = results[0]['score'].toString() ?? "Unknown";
+          winner2 = results[1]['score'].toString() ?? "Unknown";
         }
 
         final pastMatch = PastMatches(
@@ -342,15 +342,15 @@ if (combinedData['valorant'] != null) {
         String winner2 = 'keine Daten';
 
         if (opponents.isNotEmpty && opponents.length > 1) {
-          opponent1 = opponents[0]['opponent']['name'] ?? "keine Daten";
-          opponent2 = opponents[1]['opponent']['name'] ?? "keine Daten";
-          opponent1url = opponents[0]['opponent']['image_url'] ?? "keine Daten";
-          opponent2url = opponents[1]['opponent']['image_url'] ?? "keine Daten";
+          opponent1 = opponents[0]['opponent']['name'] ?? "Unknown";
+          opponent2 = opponents[1]['opponent']['name'] ?? "Unknown";
+          opponent1url = opponents[0]['opponent']['image_url'] ?? "Unknown";
+          opponent2url = opponents[1]['opponent']['image_url'] ?? "Unknown";
         }
 
         if (results.isNotEmpty && results.length > 1) {
-          winner1 = results[0]['score'].toString() ?? "keine Daten";
-          winner2 = results[1]['score'].toString() ?? "keine Daten";
+          winner1 = results[0]['score'].toString() ?? "Unknown";
+          winner2 = results[1]['score'].toString() ?? "Unknown";
         }
 
         final pastMatch = PastMatches(

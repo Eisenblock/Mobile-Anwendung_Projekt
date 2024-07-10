@@ -144,6 +144,7 @@ Widget buildPastMatches() {
     return Center(child: Text('No past matches available'));
   } else {
     return ListView.builder(
+      controller: _sscrollController,
       itemCount: _filteredPastMatches.length,
       itemBuilder: (context, index) {
         final pastMatch = _filteredPastMatches[index];
@@ -185,7 +186,7 @@ Widget buildPastMatches() {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      if (pastMatch.opponent1url != 'keine Daten')
+                      if (pastMatch.opponent1url != 'Unknown')
                         Column(
                           children: [
                             Container(
@@ -208,7 +209,7 @@ Widget buildPastMatches() {
                           ],
                         ),
                       Text('vs', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                      if (pastMatch.opponent2url != 'keine Daten')
+                      if (pastMatch.opponent2url != 'Unknown')
                         Column(
                           children: [
                             Container(
@@ -284,6 +285,7 @@ Widget buildPastMatches() {
     return Center(child: Text('No teams found'));
   } else {
     return ListView.builder(
+        controller: _sscrollController,
       itemCount: _filteredTeams.length,
       itemBuilder: (context, index) {
         final team = _filteredTeams[index];
@@ -298,7 +300,7 @@ Widget buildPastMatches() {
                   child: Text(team.name, style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
                 ListView.builder(
-                  controller: _sscrollController,
+                
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: team.teamMembers.length,
@@ -372,7 +374,7 @@ Widget buildPastMatches() {
 Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text("Stats"),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
