@@ -103,6 +103,7 @@ Widget buildTeamInfoList() {
     );
   } else {
     return ListView.builder(
+      controller: _sscrollController,
       itemCount: _teamInfos.length,
       itemBuilder: (context, index) {
         final teamInfo = _teamInfos[index];
