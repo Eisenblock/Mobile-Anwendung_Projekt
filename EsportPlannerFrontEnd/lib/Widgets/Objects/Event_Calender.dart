@@ -11,6 +11,7 @@ class Event_Calender {
   String opponent1_short;
   String opponent2_short;
   String? imageUrl;
+  String videoGame;
 
   Event_Calender({
     required this.name,
@@ -23,5 +24,6 @@ class Event_Calender {
     required this.opponent1_short,
     required this.opponent2_short,
     this.imageUrl,
+    required this.videoGame,
   });
 }

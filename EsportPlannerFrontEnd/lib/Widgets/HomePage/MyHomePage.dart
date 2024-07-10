@@ -86,7 +86,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-//Build the Team Box
 Widget buildTeamInfoList() {
   if (_teamInfos.isEmpty) {
     return Center(
@@ -98,143 +97,171 @@ Widget buildTeamInfoList() {
       itemBuilder: (context, index) {
         final teamInfo = _teamInfos[index];
         return Padding(
-          padding: const EdgeInsets.all(16.0), // Padding um die gesamte Karte
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0), // Padding um den Text
-                    child: Text(
-                      '${teamInfo.name}',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0), // Padding um die gesamte Row
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Column(
-                          children: [
-                            if (teamInfo.opponent1url != 'keine Daten')
-                              Image.network(
-                                teamInfo.opponent1url,
-                                height: 80,
-                                width: 80,
-                                fit: BoxFit.cover,
-                              )
-                            else
-                              Container(
-                                height: 80,
-                                width: 80,
-                                padding: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(color: Colors.black),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '?',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            SizedBox(height: 4),
-                            if(teamInfo.opponent1 != 'keine Daten')
-                            Text(
-                              teamInfo.opponent_short1,
-                              style: TextStyle(fontSize: 12),
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: 8),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0), // Padding um den "vs" Text
+          padding: const EdgeInsets.all(16.0), // Padding around the entire card
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 30), // Space for the image
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0), // Padding around the text
                           child: Text(
-                            'vs',
-                            style: TextStyle(fontSize: 12),
+                            '${teamInfo.name}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Column(
+                      ),
+                      SizedBox(height: 16), // Space between the row and the rest of the content
+                      Padding(
+                        padding: const EdgeInsets.all(16.0), // Padding around the entire row
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            if (teamInfo.opponent2url != 'keine Daten')
-                              Image.network(
-                                teamInfo.opponent2url,
-                                height: 80,
-                                width: 80,
-                                fit: BoxFit.cover,
-                              )
-                            else
-                              Container(
-                                height: 80,
-                                width: 80,
-                                padding: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(color: Colors.black),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '?',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12,
+                            Column(
+                              children: [
+                                if (teamInfo.opponent1url != 'keine Daten')
+                                  Image.network(
+                                    teamInfo.opponent1url,
+                                    height: 80,
+                                    width: 80,
+                                    fit: BoxFit.cover,
+                                  )
+                                else
+                                  Container(
+                                    height: 80,
+                                    width: 80,
+                                    padding: const EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      border: Border.all(color: Colors.black),
                                     ),
-                                    textAlign: TextAlign.center,
+                                    child: Center(
+                                      child: Text(
+                                        '?',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                SizedBox(height: 4),
+                                if (teamInfo.opponent1 != 'keine Daten')
+                                  Text(
+                                    teamInfo.opponent_short1,
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                              ],
+                            ),
+                            SizedBox(width: 8),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0), // Padding around the "vs" text
+                              child: Text(
+                                'vs',
+                                style: TextStyle(fontSize: 12),
                               ),
-                            SizedBox(height: 4),
-                            if(teamInfo.opponent2 != 'keine Daten')
-                            Text(                           
-                              teamInfo.opponent_short2,
-                              style: TextStyle(fontSize: 12),
+                            ),
+                            SizedBox(width: 8),
+                            Column(
+                              children: [
+                                if (teamInfo.opponent2url != 'keine Daten')
+                                  Image.network(
+                                    teamInfo.opponent2url,
+                                    height: 80,
+                                    width: 80,
+                                    fit: BoxFit.cover,
+                                  )
+                                else
+                                  Container(
+                                    height: 80,
+                                    width: 80,
+                                    padding: const EdgeInsets.all(8.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[300],
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      border: Border.all(color: Colors.black),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        '?',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                                SizedBox(height: 4),
+                                if (teamInfo.opponent2 != 'keine Daten')
+                                  Text(
+                                    teamInfo.opponent_short2,
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.calendar_today, size: 16.0),
+                          SizedBox(width: 4.0),
+                          Text('${teamInfo.date}'),
+                        ],
+                      ),
+                      SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.access_time, size: 16.0),
+                          SizedBox(width: 4.0),
+                          Text('${teamInfo.time}'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              if (teamInfo.videoGame == 'LoL')
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.asset(
+                      'assets/lol_logo.png',
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.calendar_today, size: 16.0),
-                      SizedBox(width: 4.0),
-                      Text('${teamInfo.date}'),
-                    ],
+                ),
+              if (teamInfo.videoGame == 'Valorant')
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.asset(
+                      'assets/valo_logo.webp',
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.access_time, size: 16.0),
-                      SizedBox(width: 4.0),
-                      Text('${teamInfo.time}'),
-                    ],
-                  ),
-                  Text(
-                    teamInfo.videoGame,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
+                ),
+            ],
           ),
         );
       },

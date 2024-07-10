@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light(), // Standardlichtmodus
+      theme: ThemeData.dark(), // Standardlichtmodus
     darkTheme: ThemeData.dark(), // Standard-Dunkelmodus
       initialRoute: '/login',
       routes: {

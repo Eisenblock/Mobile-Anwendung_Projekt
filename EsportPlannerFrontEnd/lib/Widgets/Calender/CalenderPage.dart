@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_ma/Widgets/Objects/Event_Calender.dart';
@@ -144,6 +143,7 @@ Widget _buildEventColumn(DateTime date) {
         imageUrl: teamInfo.leagueurl,
         time: teamInfo.time,
         date: teamInfo.date,
+        videoGame: teamInfo.videoGame,
         opponent1_short : teamInfo.opponent_short1,
         opponent2_short : teamInfo.opponent_short2,
       ));
@@ -166,7 +166,7 @@ Widget _buildDateBox(String formattedDate) {
     height: 30,
     margin: EdgeInsets.all(4.0),
     decoration: BoxDecoration(
-      color: Colors.blue,
+      color: Theme.of(context).colorScheme.primary,
       borderRadius: BorderRadius.circular(8.0),
     ),
     child: Center(
@@ -205,7 +205,6 @@ Widget _buildEventList(List<Event_Calender> dayEvents) {
   );
 }
 
-//Build the Event Box
 Widget _buildEventBox(Event_Calender event) {
   return Container(
     margin: EdgeInsets.symmetric(vertical: 8.0),
@@ -216,11 +215,42 @@ Widget _buildEventBox(Event_Calender event) {
       borderRadius: BorderRadius.circular(8.0),
     ),
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(event.name, style: TextStyle(color: Colors.black, fontSize: 16)),
+        // Logo links oben
+        if(event.videoGame == 'LoL')
+          Container(
+          alignment: Alignment.topLeft,
+          child: Image.asset(
+            'assets/lol_logo.png',
+            width: 20,
+            height: 20,
+            fit: BoxFit.cover,
+          ),
+        ),
+        if(event.videoGame == 'Valorant')
+          Container(
+          alignment: Alignment.topLeft,
+          child: Image.asset(
+            'assets/valo_logo.webp',
+            width: 20,
+            height: 20,
+            fit: BoxFit.cover,
+          ),
+        ),
+        SizedBox(height: 12), // Abstand zwischen Logo und Event Name
+        // Event Name zentriert
+        Text(
+          event.name,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.black, fontSize: 16),
+        ),
+        SizedBox(height: 8), // Abstand zwischen Event Name und Gegnern
+        // Gegner und vs-Text
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Gegner 1
             Column(
               children: [
                 if (event.opponent1url != 'keine Daten')
@@ -249,14 +279,14 @@ Widget _buildEventBox(Event_Calender event) {
                     ),
                   ),
                 SizedBox(height: 4),
-                if(event.opponent1 != 'keine Daten')
-                Text(
-                  event.opponent1_short,
-                  style: TextStyle(color: Colors.black, fontSize: 12),
-                ),
+                if (event.opponent1 != 'keine Daten')
+                  Text(
+                    event.opponent1_short,
+                    style: TextStyle(color: Colors.black, fontSize: 12),
+                  ),
               ],
             ),
-            SizedBox(width: 4),   
+            SizedBox(width: 4),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 25.0), // Padding um den "vs" Text
               child: Text(
@@ -265,6 +295,7 @@ Widget _buildEventBox(Event_Calender event) {
               ),
             ),
             SizedBox(width: 4),
+            // Gegner 2
             Column(
               children: [
                 if (event.opponent2url != 'keine Daten')
@@ -293,15 +324,17 @@ Widget _buildEventBox(Event_Calender event) {
                     ),
                   ),
                 SizedBox(height: 4),
-                if(event.opponent2 != 'keine Daten')
-                Text(
-                  event.opponent2_short,
-                  style: TextStyle(color: Colors.black, fontSize: 12),
-                ),
+                if (event.opponent2 != 'keine Daten')
+                  Text(
+                    event.opponent2_short,
+                    style: TextStyle(color: Colors.black, fontSize: 12),
+                  ),
               ],
             ),
           ],
         ),
+        SizedBox(height: 8), // Abstand zwischen Gegnern und Zeit
+        // Zeit des Events
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -316,7 +349,10 @@ Widget _buildEventBox(Event_Calender event) {
       ],
     ),
   );
-} 
+}
+
+
+
 
     String _formatDate(DateTime date) {
     List<String> weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

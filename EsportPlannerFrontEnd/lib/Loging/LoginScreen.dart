@@ -93,14 +93,16 @@ void navigateToRegistration() {
 //Build the login form
   @override
   Widget build(BuildContext context) {
+     bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            SizedBox(height: 200),
             TextField(
               controller: usernameController,
               decoration: InputDecoration(
@@ -114,10 +116,13 @@ void navigateToRegistration() {
                 labelText: 'Passwort',
               ),
             ),
+            SizedBox(height: 20),
+            if (!isKeyboardVisible)
             ElevatedButton(
               onPressed: loginUser,
               child: Text('Anmelden'),
             ),
+            if (!isKeyboardVisible)
             ElevatedButton(
               onPressed: navigateToRegistration,
               child: Text('Registrieren'),

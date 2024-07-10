@@ -50,7 +50,7 @@ Future<void> fetchAllOptions() async {
     List<LoL_Leagues> _leagues = [];
     List<LoL_Team> _teams = [];
     
-    _leagues = await loader.fetchAllLeagues();
+   // _leagues = await loader.fetchAllLeagues();
     _teams = await loader.fetchAllTeamsLoL();
     
    

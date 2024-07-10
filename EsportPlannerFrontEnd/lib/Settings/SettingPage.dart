@@ -16,7 +16,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
 
   //variablen
-  List<String> settingsOptions = ['lol', 'valorant', 'csgo'];
+  List<String> settingsOptions = ['lol', 'valorant'];
   String selectedLeague = '';
   List<LoL_Team> teams = [];
   Loader loader = Loader();

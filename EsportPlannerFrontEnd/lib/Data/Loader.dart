@@ -12,7 +12,7 @@ import '/Widgets/Objects/LoL_TeamMember.dart';
 class Loader{
 
 //Set Ip Adress to the local IP Adress
-String ip_Adress = "192.168.0.34";
+String ip_Adress = "10.0.2.2";
 
 
 
@@ -264,7 +264,7 @@ Future<List<PastMatches>> fetchPastMatches(String id) async {
         String opponent2 = 'keine Daten';
         String opponent1url = 'keine Daten';
         String opponent2url = 'keine Daten';
-        String videogame = 'lol';
+        String videogame = match['videogame'];
         String winner1 = 'keine Daten';
         String winner2 = 'keine Daten';
 
@@ -296,7 +296,7 @@ Future<List<PastMatches>> fetchPastMatches(String id) async {
           opponents.toString(), // Storing opponents as a string
           winner1,
           winner2,
-          '', // Assuming `winner` field is empty as it's not clear from the API
+          '', // Assuming winner field is empty as it's not clear from the API
         );
 
         pastMatchesList.add(pastMatch);
@@ -304,6 +304,84 @@ Future<List<PastMatches>> fetchPastMatches(String id) async {
     } else {
       print('No past matches data found.');
     }
+
+if (combinedData['valorant'] != null) {
+      final List<dynamic> matches = combinedData['valorant'];
+
+      for (var match in matches) {
+        final String name = match['name'] ?? 'Unknown';
+        List<String> parts = [];
+        String date = '';
+        DateTime timeCalender = DateTime.now();
+        String time = '';
+        final String timestamp = match['begin_at'] ?? 'Unknown';
+            if(timestamp == 'Unknown'){
+              continue;
+
+            }
+            else
+            {           
+            parts = timestamp.split("T");
+            date = parts[0];
+            timeCalender = DateTime.parse(timestamp.split('T')[0]);
+            time = parts[1];
+            }
+        
+        final String serie = match['serie'] ?? 'Unknown';
+        final String leagueUrl = match['leagueurl'] ?? 'Unknown';
+        final String league = match['league'] ?? 'Unknown';
+        final List<dynamic> opponents = match['opponents'] ?? [];
+        final List<dynamic> results = match['results'] ?? [];
+
+        String opponent1 = 'keine Daten';
+        String opponent2 = 'keine Daten';
+        String opponent1url = 'keine Daten';
+        String opponent2url = 'keine Daten';
+        String videogame = 'valorant';
+        String winner1 = 'keine Daten';
+        String winner2 = 'keine Daten';
+
+        if (opponents.isNotEmpty && opponents.length > 1) {
+          opponent1 = opponents[0]['opponent']['name'] ?? "keine Daten";
+          opponent2 = opponents[1]['opponent']['name'] ?? "keine Daten";
+          opponent1url = opponents[0]['opponent']['image_url'] ?? "keine Daten";
+          opponent2url = opponents[1]['opponent']['image_url'] ?? "keine Daten";
+        }
+
+        if (results.isNotEmpty && results.length > 1) {
+          winner1 = results[0]['score'].toString() ?? "keine Daten";
+          winner2 = results[1]['score'].toString() ?? "keine Daten";
+        }
+
+        final pastMatch = PastMatches(
+          name,
+          time,
+          date,
+          "",
+          league,
+          leagueUrl,
+          opponent1,
+          opponent2,
+          serie,
+          opponent1url,
+          opponent2url,
+          videogame,
+          opponents.toString(), // Storing opponents as a string
+          winner1,
+          winner2,
+          '', // Assuming winner field is empty as it's not clear from the API
+        );
+
+        pastMatchesList.add(pastMatch);
+      }
+    } else {
+      print('No past matches data found.');
+    }
+
+
+
+
+
   } else {
     throw Exception('Failed to load past matches');
   }
@@ -445,7 +523,7 @@ Future<List<LoL_Team>> fetchAllTeamsLoL() async {
       teamMembers.add(teamMember);
     }
 
-    final LoL_Team lolTeam = LoL_Team(name, teamMembers, 'lol');
+    final LoL_Team lolTeam = LoL_Team(name, teamMembers, 'valorant');
     teams.add(lolTeam);
   
   }

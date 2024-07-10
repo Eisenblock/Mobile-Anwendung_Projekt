@@ -94,7 +94,7 @@ app.get('/user', async (req, res) => {
       selectedLeagues: user.selectedLeagues,
       username: user.username,
       password: user.password,
-      // Weitere Felder nach Bedarf hinzufügen
+   
     }));
     console.log(users);
 
@@ -109,6 +109,8 @@ app.get('/user', async (req, res) => {
 app.get('/user/:_id/upcoming-matches', async (req, res) => {
   try {
     const userId = req.params._id;
+    const apiUrlLOL = 'https://api.pandascore.co/lol/upcoming';
+    const apiUrlVALO = 'https://api.pandascore.co/valorant/upcoming';
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).send('Benutzer nicht gefunden');
@@ -138,7 +140,7 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
       const response = await fetch(`${apiUrl}?token=${apiKey}`);
       const data = await response.json();
       
-      // Extrahiere nur die gewünschten Informationen aus den abgerufenen Daten
+      
       var filteredData = data.map(match => ({
         name: match.name,
         opponents: match.opponents,  
@@ -147,51 +149,10 @@ app.get('/user/:_id/upcoming-matches', async (req, res) => {
         leagueurl: match.league.image_url,
         serie: match.serie.name,
         videogame: match.videogame.name,
-        // Füge weitere Felder hinzu, die du senden möchtest
+        
       }));
 
-      // Filtern der Daten nach den ausgewählten Ligen
-    /*
-      if(game == 'lol'&& selectedLeagues_lol.length > 0){
-    
-        filteredData = filteredData.filter(match => selectedLeagues_lol.includes(match.league));
-        console.log(filteredData);
-      }else{
-        console.log("Keine Liga ausgewählt");
-        console.log(filteredData);
-      }
-      
-      if(game == 'valorant'&& selectedLeagues_valo.length > 0){
-        filteredData = filteredData.filter(match => selectedLeagues_valo.includes(match.league));
-        console.log(filteredData);
-      }else{
-        console.log("Keine Liga ausgewählt");
-        console.log(filteredData);
-      }
-
-
-      // Filtern der Daten nach den ausgewählten Teams
-
-      if(game == 'lol'&& selectedTeams_lol.length > 1){
-        const lolfilteredData = filteredData.filter(match => match.opponents[0].opponent.name == selectedTeams_lol || match.opponents[1].opponent.name == selectedTeams_lol);
-        console.log(lolfilteredData);
-      }else{
-        console.log("Kein Team ausgewählt");
-        
-      }
-
-      if(game == 'valorant'&& selectedTeams_valo.length > 0){
-        filteredData = filteredData.filter(match => match.opponents[0].opponent.name == selectedTeams_valo || match.opponents[1].opponent.name == selectedTeams_valo);
-      }else{
-        console.log("Kein Team ausgewählt");
-      }*/
-
-      
-
-     
         combinedData[game] = filteredData;
-     
-
     }
 
   //  console.log(combinedData);

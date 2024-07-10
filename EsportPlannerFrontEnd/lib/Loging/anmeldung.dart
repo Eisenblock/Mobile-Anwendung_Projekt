@@ -8,7 +8,11 @@ class RegistrationForm extends StatefulWidget {
 }
 
 class _RegistrationFormState extends State<RegistrationForm> {
-  String ip_Adress = "192.168.0.34";
+
+  // IP-Adress of the backend
+  String ip_Adress = "10.0.2.2";
+
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
@@ -42,10 +46,17 @@ class _RegistrationFormState extends State<RegistrationForm> {
   }
 
 
+Future<void> getBack() async {
+  Navigator.pushReplacementNamed(context, '/login');
+
+}
+
 // Build the registration form
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
+    return Scaffold(   
       appBar: AppBar(title: Text('Registration')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -101,9 +112,15 @@ class _RegistrationFormState extends State<RegistrationForm> {
                   },
                 ),
               SizedBox(height: 20),
+               if (!isKeyboardVisible)
               ElevatedButton(
                 onPressed: _register,
                 child: Text('Register'),
+              ),
+              if (!isKeyboardVisible)
+              ElevatedButton(
+                onPressed: getBack,
+                child: Text('Back to Login'),
               ),
             ],
           ),
