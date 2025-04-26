@@ -1,4 +1,5 @@
-##🎮 EsportPlanner
+## 🎮 EsportPlanner
+
 EsportPlanner ist eine Plattform zur Verwaltung und Übersicht von Esport-Teams, deren Statistiken und kommenden Spielen. Perfekt für Organisationen, Turniere oder Community-Events!
 
 ✨ Features
