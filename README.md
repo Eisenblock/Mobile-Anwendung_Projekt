@@ -7,11 +7,11 @@ EsportPlanner ist eine Plattform zur Verwaltung und Übersicht von Esport-Teams,
 
 Detaillierte Statistiken (Siege, Niederlagen, K/D-Ratio, etc.)
 
-Anzeige von kommenden Spielen und Events
+Anzeige von kommenden Spielen 
 
 Einfache Verwaltung und Aktualisierung der Daten
 
-Responsive Design für Desktop und Mobile
+Responsive Design für Mobile
 
 🛠️ Technologien
 Frontend: Flutter
